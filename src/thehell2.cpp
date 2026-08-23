@@ -2103,7 +2103,7 @@ void DrawInfoLeft()
             }
         }
     }
-	if( TimeSpeed != 1.0 && (is(GameMode, GM_IRONMAN, GM_NIGHTMARE, GM_SURVIVAL) && MaxCountOfPlayersInGame == 1
+	if( TimeSpeed != 1.0 && (is(GameMode, GM_NORMAL, GM_HARDCORE, GM_IRONMAN, GM_NIGHTMARE, GM_EASY, GM_SURVIVAL, GM_HARD, GM_SPEEDRUN) && MaxCountOfPlayersInGame == 1
 	 || DevelopMode) ){
 		draw( C_3_Gold, "Time speed: %0.2f", TimeSpeed );
 	}
