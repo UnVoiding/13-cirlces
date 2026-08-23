@@ -1483,8 +1483,8 @@ void __fastcall DrawDynamicObjects( uchar* surfaceDest, int row, int col, int sc
 				}
 			}
         }
-		// draw died monsters: whole stack, topmost (most recently added) corpse first
-		for( int corpseIndex = corpseStack.count - 1; corpseIndex >= 0; corpseIndex-- ){
+		// draw died monsters: whole stack, oldest first so the newest corpse paints on top
+		for( int corpseIndex = 0; corpseIndex < corpseStack.count; corpseIndex++ ){
 			ushort deadMonsterSpriteNum = corpseStack.entries[ corpseIndex ];
 			if( deadMonsterSpriteNum > 0 && (deadMonsterSpriteNum & 0xff) <= DeadMonsters_Sprites_Max_Count ){
 				int spriteIndex = (deadMonsterSpriteNum & 0xff) - 1;
