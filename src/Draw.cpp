@@ -1456,7 +1456,7 @@ void __fastcall DrawDynamicObjects( uchar* surfaceDest, int row, int col, int sc
 	uchar placeFlag = FlagMap[ 0 ][ cell ];
 	int objectSprite = ObjectsMap[ 0 ][ cell ];
 	int itemNum = ItemMap[ 0 ][ cell ];
-	ushort deadMonsterSpriteNum = DeathMonstersMap[ 0 ][ cell ];
+	CorpseStack& corpseStack = DeathMonstersMap[ 0 ][ cell ];
 	uchar bloodNum = BloodMap[ 0 ][ cell ];
 	char arch = ArchGraphicsMap[ 0 ][ cell ];
 	uchar transparent = TransMap[ 0 ][ cell ];
@@ -1483,28 +1483,31 @@ void __fastcall DrawDynamicObjects( uchar* surfaceDest, int row, int col, int sc
 				}
 			}
         }
-		// draw died monsters
-		if( deadMonsterSpriteNum > 0 && (deadMonsterSpriteNum & 0xff) <= DeadMonsters_Sprites_Max_Count ){
-			int spriteIndex = (deadMonsterSpriteNum & 0xff) - 1;
-			int dir = (deadMonsterSpriteNum >> 8) & 7;
-			DeadStruct& dd = dead[spriteIndex];
-			int offsetX = playerOffsetX - dd.deadWidth2;
-			int offsetY = playerOffsetY;
-			int tilesInCell = tileInCellIndex;
-			MonsterPosAdjust(&dd.oriented[dir], offsetX, offsetY, tilesInCell);
-			char* orientedPtr = dd.oriented[dir].data;
-			int data1 = dd.deadFrame;
-			if( orientedPtr && data1 >= 1 && *(int*)orientedPtr <= 70 && data1 <= *(int*)orientedPtr ){
-				if( dd.deadTrans ){
-					// trying to draw last die anim frame under corpse
-					//DrawMovingSpriteLight( offsetX, playerOffsetY, (int) MonsterSprites[spriteIndex].animation[ANIM_4_DIE].oriented[orient], MonsterSprites[spriteIndex].animation[ANIM_4_DIE].frameCount - 1, MonsterSprites[spriteIndex].Pitch, 0, tileInCellIndex, 1 );
+		// draw died monsters: whole stack, topmost (most recently added) corpse first
+		for( int corpseIndex = corpseStack.count - 1; corpseIndex >= 0; corpseIndex-- ){
+			ushort deadMonsterSpriteNum = corpseStack.entries[ corpseIndex ];
+			if( deadMonsterSpriteNum > 0 && (deadMonsterSpriteNum & 0xff) <= DeadMonsters_Sprites_Max_Count ){
+				int spriteIndex = (deadMonsterSpriteNum & 0xff) - 1;
+				int dir = (deadMonsterSpriteNum >> 8) & 7;
+				DeadStruct& dd = dead[spriteIndex];
+				int offsetX = playerOffsetX - dd.deadWidth2;
+				int offsetY = playerOffsetY;
+				int tilesInCell = tileInCellIndex;
+				MonsterPosAdjust(&dd.oriented[dir], offsetX, offsetY, tilesInCell);
+				char* orientedPtr = dd.oriented[dir].data;
+				int data1 = dd.deadFrame;
+				if( orientedPtr && data1 >= 1 && *(int*)orientedPtr <= 70 && data1 <= *(int*)orientedPtr ){
+					if( dd.deadTrans ){
+						// trying to draw last die anim frame under corpse
+						//DrawMovingSpriteLight( offsetX, playerOffsetY, (int) MonsterSprites[spriteIndex].animation[ANIM_4_DIE].oriented[orient], MonsterSprites[spriteIndex].animation[ANIM_4_DIE].frameCount - 1, MonsterSprites[spriteIndex].Pitch, 0, tileInCellIndex, 1 );
 
-					CL2_DrawDark(offsetX, offsetY, orientedPtr, data1, dd.deadWidth, 0, tilesInCell, dd.deadTrans);
-				}else{
-					// trying to draw last die anim frame under corpse
-					//DrawMovingSpriteDarken( offsetX, playerOffsetY,	(int) MonsterSprites[ spriteIndex ].animation[ ANIM_4_DIE ].oriented[ orient ],	MonsterSprites[ spriteIndex ].animation[ ANIM_4_DIE ].frameCount - 1, MonsterSprites[ spriteIndex ].Pitch, 0, tileInCellIndex );
-					
-					CL2_Draw(offsetX, offsetY, orientedPtr, data1, dd.deadWidth, 0, tilesInCell, true);
+						CL2_DrawDark(offsetX, offsetY, orientedPtr, data1, dd.deadWidth, 0, tilesInCell, dd.deadTrans);
+					}else{
+						// trying to draw last die anim frame under corpse
+						//DrawMovingSpriteDarken( offsetX, playerOffsetY,	(int) MonsterSprites[ spriteIndex ].animation[ ANIM_4_DIE ].oriented[ orient ],	MonsterSprites[ spriteIndex ].animation[ ANIM_4_DIE ].frameCount - 1, MonsterSprites[ spriteIndex ].Pitch, 0, tileInCellIndex );
+
+						CL2_Draw(offsetX, offsetY, orientedPtr, data1, dd.deadWidth, 0, tilesInCell, true);
+					}
 				}
 			}
 		}

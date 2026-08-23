@@ -171,7 +171,7 @@ template<size_t N, typename I> int PrintBigNum(char (&outBuf)[N], I val, char se
 }
 
 // versioning struct size
-enum Game_Param: ushort { CurSaveVersion = 27, CurItemGenVersion = 7 }; // при релизе архив версий можно будет очиситить и запретить загружать старые версии, либо сделать релизный идентификатор сейвов 'HEL3'
+enum Game_Param: ushort { CurSaveVersion = 28, CurItemGenVersion = 7 }; // при релизе архив версий можно будет очиситить и запретить загружать старые версии, либо сделать релизный идентификатор сейвов 'HEL3'
 struct StructVersion { ushort num; size_t size; };
 template<typename T> constexpr size_t StructSize(ushort version)
 {

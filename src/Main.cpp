@@ -1781,7 +1781,17 @@ void InitDead()
 //----- (00408D88) --------------------------------------------------------
 void __fastcall AddMonsterCorpse( int row, int col, int monsterSpriteNum, int orient )
 {
-	DeathMonstersMap[ row ][ col ] = (monsterSpriteNum & 0xff) + (orient << 8); // was uchar num and orient, causing dead array overflow
+	CorpseStack& stack = DeathMonstersMap[ row ][ col ];
+	ushort packed = (monsterSpriteNum & 0xff) + (orient << 8); // was uchar num and orient, causing dead array overflow
+	if( stack.count < MaxCorpsesPerTile ){
+		stack.entries[ stack.count++ ] = packed;
+	}else{
+		// tile is full: drop the oldest corpse and push the new one on top
+		for( int i = 1; i < MaxCorpsesPerTile; i++ ){
+			stack.entries[i - 1] = stack.entries[i];
+		}
+		stack.entries[ MaxCorpsesPerTile - 1 ] = packed;
+	}
 }
 
 //----- (00408DA9) --------------------------------------------------------
@@ -1791,10 +1801,13 @@ void SyncUniqDead()
 	for( int i = 0; i < MonstersCount; i++ ){
 		Monster& monster = Monsters[MonsterIndexes[i]];
 		if( monster.newBossId ){ // (3) расширение номера босса
-			for (int col = 0; col < 112; col++) {
-				for (int row = 0; row < 112; row++) {
-					if( (DeathMonstersMap[row][col] & 0xff) == monster.udeadNum ){ // original was 0x1f, expaned to byte
-						ChangeLightPos(monster.LightIndex, row, col);
+			for (int col = 0; col < FineMap_112; col++) {
+				for (int row = 0; row < FineMap_112; row++) {
+					CorpseStack& stack = DeathMonstersMap[row][col];
+					for( int e = 0; e < stack.count; e++ ){
+						if( (stack.entries[e] & 0xff) == monster.udeadNum ){ // original was 0x1f, expaned to byte
+							ChangeLightPos(monster.LightIndex, row, col);
+						}
 					}
 				}
 			}

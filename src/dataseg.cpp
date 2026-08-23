@@ -2221,7 +2221,7 @@ Monster Monsters[ Monsters_Max_Count ]; // 0069DC88
 PathStep StepsPool[ 300 ]; //Struct52Array300
 int MonsterIndexes[Monsters_Max_Count]; // 0069D960
 int MissileIndexes[MissilesMax]; // 00697668
-ushort DeathMonstersMap[ FineMap_112 ][ FineMap_112 ];
+CorpseStack DeathMonstersMap[ FineMap_112 ][ FineMap_112 ];
 uchar BloodMap[ FineMap_112 ][ FineMap_112 ];
 
 // Все уровни имеют размер Map_40 * Map_40 клеток

@@ -1816,6 +1816,12 @@ struct DeadStruct
 	int  baseMonsterIndex;
 };
 
+struct CorpseStack
+{
+	uchar  count;                       // number of corpses currently on this tile (0..MaxCorpsesPerTile)
+	ushort entries[MaxCorpsesPerTile];  // entries[count-1] is the topmost/most recently placed corpse; entries[0] is the oldest
+};
+
 // sizeof 3
 struct TownerQuestInfo
 {

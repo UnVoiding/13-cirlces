@@ -9013,7 +9013,7 @@ void __fastcall Ai_4_Scavenger(uint monsterIndex)
 		return;
 	}
 	monster.mayRetreateTick--;
-	if( DeathMonstersMap[ monster.Row ][ monster.Col ] ){
+	if( DeathMonstersMap[ monster.Row ][ monster.Col ].count ){
 		// уже стоим на трупе
 		StartMonsterSecondAttack_1_2(monsterIndex);
 		if( !(monster.flag & MF_4_NOHEAL) ){
@@ -9033,7 +9033,10 @@ void __fastcall Ai_4_Scavenger(uint monsterIndex)
 				monster.CurrentLife = monster.BaseLife;
 			}
 			if( monster.mayRetreateTick <= 0 || monster.CurrentLife == healedPoints ){
-				DeathMonstersMap[ monster.Row ][ monster.Col ] = 0;
+				CorpseStack& eatenStack = DeathMonstersMap[ monster.Row ][ monster.Col ];
+				if( eatenStack.count > 0 ){
+					eatenStack.count--; // remove the topmost corpse, revealing whatever was buried underneath
+				}
 			}
 		}
 		if( monster.CurrentLife == monster.BaseLife ){
@@ -9054,7 +9057,7 @@ void __fastcall Ai_4_Scavenger(uint monsterIndex)
 				for( rowOffset = offsetStart; rowOffset <= offsetEnd && !isCorpseFound; rowOffset += dir ){
 					int corpseRow = monster.Row + rowOffset, corpseCol = monster.Col + colOffset;
 					if( In112(corpseRow, corpseCol) ){
-						isCorpseFound = DeathMonstersMap[ corpseRow ][ corpseCol ] && CheckLineWithTwoArgumentsCheckFunction(IsCellNotBlockWalking, monster.Row, monster.Col, corpseRow, corpseCol);
+						isCorpseFound = DeathMonstersMap[ corpseRow ][ corpseCol ].count && CheckLineWithTwoArgumentsCheckFunction(IsCellNotBlockWalking, monster.Row, monster.Col, corpseRow, corpseCol);
 					}
 				}
 			}

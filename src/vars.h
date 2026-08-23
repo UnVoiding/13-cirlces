@@ -764,7 +764,7 @@ extern char ObjectsMap[ FineMap_112 ][ FineMap_112 ];//
 extern array<char, 1024 * 1024> DarkenDungeonTiles;
 extern int LevelCELsAmount;//	
 extern uchar AltMap[ Map_40 ][ Map_40 ];//	
-extern ushort DeathMonstersMap[ FineMap_112 ][ FineMap_112 ];//
+extern CorpseStack DeathMonstersMap[ FineMap_112 ][ FineMap_112 ];//
 extern uchar BloodMap[ FineMap_112 ][ FineMap_112 ];//
 extern TileColumn TileMap[ FineMap_112 * FineMap_112 ];//	Cel map ?
 extern unsigned char StaticLightMap[ FineMap_112 ][ FineMap_112 ];//	

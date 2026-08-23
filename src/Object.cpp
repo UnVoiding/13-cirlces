@@ -2138,7 +2138,7 @@ void __fastcall DoorAction( int objectIndex )
 	Object& object = Objects[objectIndex];
 	if( object.OpenState ){
 		int cell = object.Col + 112 * object.Row;
-		if( !MonsterMap[ 0 ][ cell ] && !ItemMap[0][cell] && !DeathMonstersMap[0][cell] && !PlayerMap[0][cell] ){
+		if( !MonsterMap[ 0 ][ cell ] && !ItemMap[0][cell] && !DeathMonstersMap[0][cell].count && !PlayerMap[0][cell] ){
 			object.OpenState = OS_1_OPEN;
 			object.selectable = 2;
 		}else{
@@ -2628,7 +2628,7 @@ void __fastcall ActivateChurchDoorCollateralDiagonal(int playerIndex, int object
 		PlayLocalSound( Dungeon->graphType == DT_5_CRYPT ? S_1021_I_CRCLOS : S_25_I_DOORCLOS, row, Objects[ objectIndex_1 ].Col );
 		cell = col + 112 * row;
 		monster_item = !MonsterMap[ 0 ][ cell ] && !ItemMap[ 0 ][ cell ];
-		monster_item_death = monster_item && !DeathMonstersMap[ 0 ][ cell ];
+		monster_item_death = monster_item && !DeathMonstersMap[ 0 ][ cell ].count;
 		if( !monster_item_death ){
 			Objects[ objectIndex_1 ].OpenState = 2;
 			return;
@@ -2782,7 +2782,7 @@ void __fastcall ActivateChurchDoorMainDiagonal( int playerIndex, int objectOnMap
 	if( !deltaload ){
 		PlayLocalSound(Dungeon->graphType == DT_5_CRYPT ? S_1021_I_CRCLOS : S_25_I_DOORCLOS, objectOnMap.Row, objectOnMap.Col);
 	}
-	if( MonsterMap[ objectRow ][ objectCol ] || ItemMap[objectRow][objectCol] || DeathMonstersMap[objectRow][objectCol] ){
+	if( MonsterMap[ objectRow ][ objectCol ] || ItemMap[objectRow][objectCol] || DeathMonstersMap[objectRow][objectCol].count ){
 		objectOnMap.OpenState = OS_2_BLOCKED;
 		return;
 	}
@@ -2842,7 +2842,7 @@ void __fastcall ActivateCatacombDoorMainDiagonal( int playerIndex, int objectInd
 			PlayLocalSound(S_25_I_DOORCLOS, object.Row, object.Col);
 		}
 		int cell = object.Col + 112 * object.Row;
-		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell] ){
+		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell].count ){
 			object.OpenState = OS_2_BLOCKED;
 			return;
 		}
@@ -2944,7 +2944,7 @@ void __fastcall ActivateCatacombDoorCollateralDiagonal( int playerIndex, int obj
 			PlayLocalSound(S_25_I_DOORCLOS, object.Row, object.Col);
 		}
 		int cell = object.Col + 112 * object.Row;
-		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell] ){
+		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell].count ){
 			object.OpenState = OS_2_BLOCKED;
 			return;
 		}
@@ -2988,7 +2988,7 @@ void __fastcall ActivateCaveDoorCollateralDiagonal( int playerIndex, int objectI
 			PlayLocalSound(S_25_I_DOORCLOS, object.Row, object.Col);
 		}
 		int cell = object.Col + 112 * object.Row;
-		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell] ){
+		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell].count ){
 			object.OpenState = OS_2_BLOCKED;
 			return;
 		}
@@ -3032,7 +3032,7 @@ void __fastcall ActivateCaveDoorMainDiagonal( int playerIndex, int objectIndex, 
 			PlayLocalSound(S_25_I_DOORCLOS, object.Row, object.Col);
 		}
 		int cell = object.Col + 112 * object.Row;
-		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell] ){
+		if( MonsterMap[ 0 ][ cell ] || ItemMap[0][cell] || DeathMonstersMap[0][cell].count ){
 			object.OpenState = OS_2_BLOCKED;
 			return;
 		}

@@ -217,10 +217,22 @@ void __fastcall LoadGame( int loadFromMainMenu )
 
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
-				DeathMonstersMap[ row ][ col ] = GetNextWord();
+				CorpseStack& stack = DeathMonstersMap[ row ][ col ];
+				if( SaveVersion < 28 ){
+					ushort legacy = GetNextWord();
+					stack.count = legacy ? 1 : 0;
+					stack.entries[0] = legacy;
+					for( int e = 1; e < MaxCorpsesPerTile; e++ ) stack.entries[e] = 0;
+				}else{
+					uchar count = (uchar)GetNextByte();
+					if( count > MaxCorpsesPerTile ) count = MaxCorpsesPerTile; // defensive clamp
+					stack.count = count;
+					for( int e = 0; e < count; e++ ) stack.entries[e] = GetNextWord();
+					for( int e = count; e < MaxCorpsesPerTile; e++ ) stack.entries[e] = 0;
+				}
 			}
 		}
-		
+
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
 				BloodMap[ row ][ col ] = GetNextByte();
@@ -911,10 +923,14 @@ void SaveGame()
 
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
-				PutNextWord(DeathMonstersMap[ row ][ col ]);
+				CorpseStack& stack = DeathMonstersMap[ row ][ col ];
+				PutNextByte( (char)stack.count );
+				for( int e = 0; e < stack.count; e++ ){
+					PutNextWord( stack.entries[e] );
+				}
 			}
 		}
-		
+
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
 				PutNextByte(BloodMap[ row ][ col ]);
@@ -1080,7 +1096,11 @@ void SaveLevel()
 	if( Dungeon->genType || Dungeon->isQuest ){
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
-				PutNextWord(DeathMonstersMap[ row ][ col ]);
+				CorpseStack& stack = DeathMonstersMap[ row ][ col ];
+				PutNextByte( (char)stack.count );
+				for( int e = 0; e < stack.count; e++ ){
+					PutNextWord( stack.entries[e] );
+				}
 			}
 		}
 		for( int col = 0; col < FineMap_112; col++ ){
@@ -1196,7 +1216,19 @@ void LoadLevel()
 	if( Dungeon->genType || Dungeon->isQuest ){
 		for( int col = 0; col < FineMap_112; col++ ){
 			for( int row = 0; row < FineMap_112; row++ ){
-				DeathMonstersMap[ row ][ col ] = GetNextWord();
+				CorpseStack& stack = DeathMonstersMap[ row ][ col ];
+				if( SaveVersion < 28 ){
+					ushort legacy = GetNextWord();
+					stack.count = legacy ? 1 : 0;
+					stack.entries[0] = legacy;
+					for( int e = 1; e < MaxCorpsesPerTile; e++ ) stack.entries[e] = 0;
+				}else{
+					uchar count = (uchar)GetNextByte();
+					if( count > MaxCorpsesPerTile ) count = MaxCorpsesPerTile; // defensive clamp
+					stack.count = count;
+					for( int e = 0; e < count; e++ ) stack.entries[e] = GetNextWord();
+					for( int e = count; e < MaxCorpsesPerTile; e++ ) stack.entries[e] = 0;
+				}
 			}
 		}
 		SyncUniqDead();

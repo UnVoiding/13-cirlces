@@ -7377,6 +7377,7 @@ enum SIZE_CONST
 	Monsters_Sprites_Max_Count = 40,
 	Monster_Sound_Max_8 = MST_COUNT * 2,
 	DeadMonsters_Sprites_Max_Count = 64,
+	MaxCorpsesPerTile = 16,
 	Monsters_Max_Count = 244,
 	Lights_32_Count = 32,
 	MaxObjects_127 = 127,
