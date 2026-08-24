@@ -4006,6 +4006,16 @@ bool __fastcall SpellCasting()
 		return false;
 	}
 
+	// Raise Bones needs a corpse under the cursor; otherwise it does nothing (no cost, no interruption), just a rejection voice line.
+	if (currentSpellNumber == PS_63_RAISE_BONES
+		&& (CurMon != -1 || Cur.playerIndex != -1
+			|| Cur.Row < 0 || Cur.Row >= FineMap_112 || Cur.Col < 0 || Cur.Col >= FineMap_112
+			|| !DeathMonstersMap[Cur.Row][Cur.Col].count)) {
+		voiceIndex = playerClass.Voice[PLAYER_VOICE_NO_ROOM];
+		PlayGlobalSound(voiceIndex);
+		return false;
+	}
+
 	// Проверяем условия наличия ресурсов для каста
 	int spellType = player.SpellType;
 	bool checkCastRequirementPassed = false;
@@ -4026,6 +4036,14 @@ bool __fastcall SpellCasting()
 
 	// Если ресурсов недостаточно, проигрываем звук
 	if (!(DevelopMode && FreeSpell) && !checkCastRequirementPassed) {
+		voiceIndex = playerClass.Voice[PLAYER_VOICE_WITH_SPELL_TYPE];
+		PlayGlobalSound(voiceIndex);
+		return false;
+	}
+
+	// Raise Bones also costs HP; refuse the cast (with the same "not enough resources" voice line used for mana) if it would be fatal or worse.
+	if (!(DevelopMode && FreeSpell) && currentSpellNumber == PS_63_RAISE_BONES
+		&& player.CurLife <= (RaiseBonesHPCost << 6)) {
 		voiceIndex = playerClass.Voice[PLAYER_VOICE_WITH_SPELL_TYPE];
 		PlayGlobalSound(voiceIndex);
 		return false;

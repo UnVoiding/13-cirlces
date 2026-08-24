@@ -5182,10 +5182,11 @@ int CalculateGolemMaxAmount(int playerindex)
 int CalculateSummonsMaxAmount( int summonType, int slvl, int playerindex )
 {
     switch( summonType ){
-        case SUM_LESSER: return CalculateLesserSummonsMaxAmount( slvl ); break;
-        case SUM_COMMON: return CalculateCommonSummonsMaxAmount( slvl ); break;
-		case SUM_GOLEM:  return CalculateGolemMaxAmount ( playerindex ); break;
-        default:                                                        break;
+        case SUM_LESSER:      return CalculateLesserSummonsMaxAmount( slvl ); break;
+        case SUM_COMMON:      return CalculateCommonSummonsMaxAmount( slvl ); break;
+		case SUM_GOLEM:       return CalculateGolemMaxAmount ( playerindex ); break;
+        case SUM_RAISE_BONES: return SummonRaiseBonesAmount;                 break; // flat cap, spell level has no effect
+        default:                                                             break;
     }
     return 1;
 }
@@ -5219,6 +5220,10 @@ void GetSummonsTypeOffsets( int summonType, int* summonsStartIndex, int* summons
 		case SUM_GREATER:
 			*summonsStartIndex = SummonGreaterOffset;
 			*summonsSlotsAmount = SummonGreaterAmount;
+			break;
+		case SUM_RAISE_BONES:
+			*summonsStartIndex = SummonRaiseBonesOffset;
+			*summonsSlotsAmount = SummonRaiseBonesAmount;
 			break;
 		}
 	}
@@ -5359,8 +5364,9 @@ void __fastcall CastGolem( int missileIndex, int casterRow, int casterCol, int t
         case MI_122_LESSER_SUMMON:  summonType = 1; break;
         case MI_123_COMMON_SUMMON:  summonType = 2; break;
         case MI_124_GREATER_SUMMON: summonType = 3; break;
+        case MI_147_RAISE_BONES:    summonType = SUM_RAISE_BONES; break;
     }
-    
+
     KillExtraSummons( casterIndex, summonType, missile.SpellLevel );
     
     int summonsMaxAmount = CalculateSummonsMaxAmount( summonType, missile.SpellLevel, casterIndex);

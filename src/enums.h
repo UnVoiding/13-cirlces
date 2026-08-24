@@ -3205,6 +3205,7 @@ enum PLAYER_SPELL: int // must be int
 	PS_60_TOXIC_BALL                 = 60,
 	PS_61_ACID_NOVA                  = 61,
 	PS_62_INSPECT_CORPSE       = 62,
+	PS_63_RAISE_BONES                = 63,
 	PS_COUNT
 };
 
@@ -3359,6 +3360,7 @@ enum MISSILE: uchar
 	MI_144_HYDRAMANCER_CHARGED_BOLT  = 144,
 	MI_145_TENTACLE					 = 145,
 	MI_146_INSPECT_CORPSE		 = 146,
+	MI_147_RAISE_BONES				 = 147,
 	MI_count
 };
 
@@ -7389,7 +7391,7 @@ enum SIZE_CONST
 	Map_40 = 40,
 	MapDirty_16 = 16,
 	FineMap_112 = 2 * (Map_40 + MapDirty_16),
-	SummonMonstersPerPlayer_Count = 12,
+	SummonMonstersPerPlayer_Count = 17,
 	SummonMonsters_Count = SummonMonstersPerPlayer_Count * PlayersMax_4,
 	Original_Monsters_SeedingSize_Max = 4000,
 	Golem_Seeding_Size = 386,
@@ -7416,6 +7418,10 @@ enum SIZE_CONST
 	SummonCommonAmount = 3,
 	SummonGreaterOffset = SummonCommonOffset + SummonCommonAmount,
 	SummonGreaterAmount = 1,
+	SummonRaiseBonesOffset = SummonGreaterOffset + SummonGreaterAmount,
+	SummonRaiseBonesAmount = 5,
+
+	RaiseBonesHPCost = 5, // flat HP cost to cast Raise Bones, not affected by spell level
 
 	CELL_SIZE = 28,
 	KEY_SIZE = 16,
@@ -7474,6 +7480,7 @@ enum SummonTypes
 	SUM_LESSER,
 	SUM_COMMON,
 	SUM_GREATER,
+	SUM_RAISE_BONES,
 	SUM_COUNT
 };
 

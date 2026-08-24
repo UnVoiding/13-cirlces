@@ -159,6 +159,22 @@ void __fastcall CastPlayerSpell(int casterIndex, int spellIndex, int casterX, in
 		return;
 	}
 
+	if( spellIndex == PS_63_RAISE_BONES ){
+		// No corpse under the target tile: do nothing (checked identically on every client so the corpse pile stays in sync).
+		if( !To112(targetX, targetY) || !DeathMonstersMap[targetX][targetY].count ){
+			return;
+		}
+		// Not enough HP left to safely pay the cost: do nothing (mirrors the mana check above, but this spell also costs health).
+		if( casterIndex == CurrentPlayerIndex && Players[casterIndex].CurLife <= (RaiseBonesHPCost << 6) ){
+			return;
+		}
+		// Consuming the corpse is world state, so it must happen on every client processing this cast, not just the caster's.
+		DeathMonstersMap[targetX][targetY].count--;
+		if( casterIndex == CurrentPlayerIndex ){
+			SetPlayerHitPoints( casterIndex, Players[casterIndex].CurLife - (RaiseBonesHPCost << 6) );
+		}
+	}
+
 	int direction = 0;
 	if( casterType == CT_0_PLAYER ){
 		direction = Players[ casterIndex ].dir;

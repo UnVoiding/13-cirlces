@@ -1421,7 +1421,8 @@ volatile int CurDir = 0;
 //----- (th2) -------------------------------------------------------------
 void __fastcall DrawMonsterInTile( int monsterIndex, uchar* surfaceDest, int row, int col, int screenCellRow, int tileInCellIndex, int playerOffsetX, int playerOffsetY, bool firstDraw, uchar placeFlag )
 {
-	if( placeFlag & CF_64_VISIBLE_BY_CURSOR || Players[CurrentPlayerIndex].Infravision || ( AlwaysHighlightSummons && monsterIndex < SummonMonsters_Count ) ){
+	bool isOwnedSummon = monsterIndex < SummonMonsters_Count && monsterIndex < Monsters_Max_Count && ( Monsters[monsterIndex].flag & MF_6_FRIENDLY ); // guards against stale save data whose regular monsters happen to occupy summon-range indices
+	if( placeFlag & CF_64_VISIBLE_BY_CURSOR || Players[CurrentPlayerIndex].Infravision || ( AlwaysHighlightSummons && isOwnedSummon ) ){
 		if( monsterIndex < Monsters_Max_Count ){
 			Monster* monster = &Monsters[monsterIndex];
 			if( !( monster->flag & MF_1_INVISIBLE ) ){
@@ -1432,8 +1433,8 @@ void __fastcall DrawMonsterInTile( int monsterIndex, uchar* surfaceDest, int row
 					int tilesInCell = tileInCellIndex;
 					MonsterPosAdjust(monster->curAnimation, x, y, tilesInCell, monsterIndex);
 					if( SpriteInScreen(x, y) ){
-						if( monsterIndex == CurMon || ( AlwaysHighlightSummons && monsterIndex < SummonMonsters_Count ) ) {
-							uchar borderColor = monsterIndex < SummonMonsters_Count ? 165 : 233;
+						if( monsterIndex == CurMon || ( AlwaysHighlightSummons && isOwnedSummon ) ) {
+							uchar borderColor = isOwnedSummon ? 165 : 233;
 							CL2_DrawOutline(borderColor, x, y, monster->curAnimation->data, monster->CurFrame, monsterSprite->Pitch, 0, tilesInCell);
 						}
 						DrawMonster(row, col, x, y, monsterIndex, 0, tilesInCell);
@@ -1628,7 +1629,7 @@ void __fastcall DrawMonster( int row, int col, int monsterX, int monsterY, unsig
 		const Player& player = Players[CurrentPlayerIndex]; 
 		int light_radius = player.ClassID == PC_1_ARCHER ? 11 : 10;
 		if (/*abs(monster.Row - Players[CurrentPlayerIndex].Row) < 9 && abs(monster.Col - Players[CurrentPlayerIndex].Col) < 9*/
-			(CheckMonsterInInfravisionRange(row, col, light_radius) || monsterIndex < SummonMonsters_Count) && !TileBlockSight[FineMap[row][col]]) { // Infravision limit
+			(CheckMonsterInInfravisionRange(row, col, light_radius) || (monsterIndex < SummonMonsters_Count && (monster.flag & MF_6_FRIENDLY))) && !TileBlockSight[FineMap[row][col]]) { // Infravision limit
 			CL2_DrawDark(monsterX, monsterY, curAnimation, curFrame, pitch, shiftY, tileInCellIndex, 1);
 		}
 		return;

@@ -12275,6 +12275,7 @@ void __fastcall MakeGolem( unsigned int summonIndex, int row, int col, int spell
         case MI_122_LESSER_SUMMON:  spriteIndex = 1; break;
         case MI_123_COMMON_SUMMON:  spriteIndex = 2; break;
         case MI_124_GREATER_SUMMON: spriteIndex = 3; break;
+        case MI_147_RAISE_BONES:    spriteIndex = 2; break; // same creature as Common Summon (skeletal warrior)
     }
 	
 	if( spriteIndex != 0 ){
@@ -12293,6 +12294,7 @@ void __fastcall MakeGolem( unsigned int summonIndex, int row, int col, int spell
         case MI_122_LESSER_SUMMON:  summonType = 1; break;
         case MI_123_COMMON_SUMMON:  summonType = 2; break;
         case MI_124_GREATER_SUMMON: summonType = 3; break;
+        case MI_147_RAISE_BONES:    summonType = SUM_RAISE_BONES; break;
     }
     params.summonType = summonType;
     

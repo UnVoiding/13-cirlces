@@ -370,7 +370,8 @@ void DrawAutoMap()
 		}
 		if( Dungeon->genType || Dungeon->isQuest ){
 		    for( int summonIndex = 0; summonIndex < SummonMonsters_Count; ++summonIndex ){
-		        if( Monsters[summonIndex].Row != 1 && Monsters[summonIndex].Col != 0 && Monsters[summonIndex].CurrentLife > 64 ){
+		        if( Monsters[summonIndex].Row != 1 && Monsters[summonIndex].Col != 0 && Monsters[summonIndex].CurrentLife > 64
+		            && ( Monsters[summonIndex].flag & MF_6_FRIENDLY ) ){ // guards against stale save data whose regular monsters happen to occupy summon-range indices
 		            AutomapDrawOneMonster( summonIndex, 183 );
                 }
             }
