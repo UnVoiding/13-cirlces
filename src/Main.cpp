@@ -3327,6 +3327,8 @@ int __stdcall GameWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					case VK_90_Z_KEY: // Alt + Z, переключение zoom
 						if( !ForceZoom ) IsZoomDisable = !IsZoomDisable;
 						break;
+					case VK_189_OEM_MINUS_KEY or VK_SUBTRACT: if (AutomapMode) { ZoomAutomapMinus(); } break; // Alt + "-"
+					case VK_187_OEM_PLUS_KEY or VK_ADD: if (AutomapMode) { ZoomAutomapPlus(); } break; // Alt + "+"
 					//case VK_82_R_KEY: // Alt + Shift + R, Resetting the image output window //mor: under cheats, this gives an error and doesn't compile!
 					//	if( IsShiftPressed ){ SwitchFullscreen(); SwitchFullscreen(); }
 					//	break;
@@ -4783,16 +4785,12 @@ void __fastcall KeyPressHandler(WPARAM key)
 			TogglePerksPanel();
 			return;
 		}
+		if( Buttons[B_TIME].active && key == VK_192_TILDA ){ TimeToggle(); return; } // ` ~ - same as clicking the Time speed button, any mode
 		#if CHEATS
-		if( key == VK_OEM_COMMA  ){ TimeChange( -0.01 ); return; } // < ,
-		if( key == VK_OEM_PERIOD ){ TimeChange(  0.01 ); return; } // > .
-		if( key == VK_OEM_2      ){ TimeReset();         return; } // ? /
-		#else
-		if( Buttons[B_TIME].active ){
-			//if( key == VK_OEM_COMMA  ){ TimeChangeIndex(-1); return; } // < ,
-			//if( key == VK_OEM_PERIOD ){ TimeChangeIndex( 1); return; } // > .
-			//if( key == VK_OEM_2      ){ TimeReset();         return; } // ? /
-			if( key == VK_OEM_PERIOD ){ TimeToggle(); return; } // > .
+		if( GetAsyncKeyState(VK_SHIFT) < 0 ){
+			if( key == VK_ADD      ){ TimeChange(  0.01 ); return; } // shift + numpad +
+			if( key == VK_SUBTRACT ){ TimeChange( -0.01 ); return; } // shift + numpad -
+			if( key == VK_DIVIDE   ){ TimeReset();         return; } // shift + numpad /
 		}
 		#endif
 
@@ -4801,8 +4799,6 @@ void __fastcall KeyPressHandler(WPARAM key)
 			case VK_67_C_KEY: if (!CurrentDialogIndex) { ToggleCharPanel(); } break;
 			case VK_73_I_KEY: if (!CurrentDialogIndex) { ToggleInventoryPanel(); } break;
 			case VK_86_V_KEY: ChangeAltWeaponPairToNext(!IsINVPanelVisible); break;
-			case VK_189_OEM_MINUS_KEY or VK_SUBTRACT: if (AutomapMode) { ZoomAutomapMinus(); } break; // shift + "-"
-			case VK_187_OEM_PLUS_KEY or VK_ADD: if (AutomapMode) { ZoomAutomapPlus(); } break; // "+" without shift
 			case VK_49_1_KEY or VK_NUMPAD1: beltItemNumberToUse = 1; break; // shift + 1
 			case VK_50_2_KEY or VK_NUMPAD2: beltItemNumberToUse = 2; break; // shift + 2
 			case VK_51_3_KEY or VK_NUMPAD3: beltItemNumberToUse = 3; break; // shift + 3
@@ -4811,7 +4807,7 @@ void __fastcall KeyPressHandler(WPARAM key)
 			case VK_54_6_KEY or VK_NUMPAD6: beltItemNumberToUse = 6; break; // shift + 6
 			case VK_55_7_KEY or VK_NUMPAD7: beltItemNumberToUse = 7; break; // shift + 7
 			case VK_56_8_KEY or VK_NUMPAD8: beltItemNumberToUse = 8; break; // shift + 8
-			case VK_192_TILDA: // th1 doesn't have status string functional (?)
+			case VK_OEM_PERIOD: // th1 doesn't have status string functional (?)
 				char buf[100]; // for status string (~)
 				GameMode == GM_COLISEUM ? sprintf(buf, "%s, mode = %s", THE_HELL_VERSION_HUMAN_STRING, getGameModeName(player.gameMode)) :
 				sprintf(buf, "%s, difficulty = %s, mode = %s", THE_HELL_VERSION_HUMAN_STRING, DifName(), getGameModeName(player.gameMode)); // TheHellVersion
