@@ -171,9 +171,9 @@ void GetDungeonMonsterTypes() // GetLevelMTypes
 	AddMonsterTypeToDungeon(BM_223_DEMONOLOG_SUMMON_1, MPF_2_DONT);
 	AddMonsterTypeToDungeon(BM_224_DEMONOLOG_SUMMON_2, MPF_2_DONT);
 	AddMonsterTypeToDungeon(BM_225_DEMONOLOG_SUMMON_3, MPF_2_DONT);
-	AddMonsterTypeToDungeon(BM_226_NECROMANT_SUMMON_1, MPF_2_DONT);
-	AddMonsterTypeToDungeon(BM_227_NECROMANT_SUMMON_2, MPF_2_DONT);
-	AddMonsterTypeToDungeon(BM_228_NECROMANT_SUMMON_3, MPF_2_DONT);
+	AddMonsterTypeToDungeon(BM_226_NECROMANCER_SUMMON_1, MPF_2_DONT);
+	AddMonsterTypeToDungeon(BM_227_NECROMANCER_SUMMON_2, MPF_2_DONT);
+	AddMonsterTypeToDungeon(BM_228_NECROMANCER_SUMMON_3, MPF_2_DONT);
 	AddMonsterTypeToDungeon(BM_229_BEASTMASTER_SUMMON_1, MPF_2_DONT);
 	AddMonsterTypeToDungeon(BM_230_BEASTMASTER_SUMMON_2, MPF_2_DONT);
 	AddMonsterTypeToDungeon(BM_231_BEASTMASTER_SUMMON_3, MPF_2_DONT);
@@ -2597,9 +2597,9 @@ void __fastcall AddQuestMonsters(ushort* dunData, int startRow, int startCol) //
         AddMonsterTypeToDungeon(BM_223_DEMONOLOG_SUMMON_1, MPF_2_DONT);
         AddMonsterTypeToDungeon(BM_224_DEMONOLOG_SUMMON_2, MPF_2_DONT);
         AddMonsterTypeToDungeon(BM_225_DEMONOLOG_SUMMON_3, MPF_2_DONT);
-        AddMonsterTypeToDungeon(BM_226_NECROMANT_SUMMON_1, MPF_2_DONT);
-        AddMonsterTypeToDungeon(BM_227_NECROMANT_SUMMON_2, MPF_2_DONT);
-        AddMonsterTypeToDungeon(BM_228_NECROMANT_SUMMON_3, MPF_2_DONT);
+        AddMonsterTypeToDungeon(BM_226_NECROMANCER_SUMMON_1, MPF_2_DONT);
+        AddMonsterTypeToDungeon(BM_227_NECROMANCER_SUMMON_2, MPF_2_DONT);
+        AddMonsterTypeToDungeon(BM_228_NECROMANCER_SUMMON_3, MPF_2_DONT);
         AddMonsterTypeToDungeon(BM_229_BEASTMASTER_SUMMON_1, MPF_2_DONT);
         AddMonsterTypeToDungeon(BM_230_BEASTMASTER_SUMMON_2, MPF_2_DONT);
         AddMonsterTypeToDungeon(BM_231_BEASTMASTER_SUMMON_3, MPF_2_DONT);
@@ -5662,13 +5662,13 @@ int __fastcall MonsterMeleeAttack(int monsterIndex) // special attack features f
 		case BM_210_HELLWING or BM_211_TORCHANT or BM_212_CACODEMON or BM_219_FROST_BONE:     melee(14, hit, min, max ); break;
 		case BM_233_BLOOD_LORD or BM_234_STEEL_LORD:                   melee(15, hit, min, max); break;
 		case BM_236_CORPSE_EATER:		                   melee(10, hit + 15, min + 2, max + 5); break; // corpse eater
-		case BM_227_NECROMANT_SUMMON_2:		melee(10, hit - 10, 4 * min / 3, 4 * max / 3); break;
+		case BM_227_NECROMANCER_SUMMON_2:		melee(10, hit - 10, 4 * min / 3, 4 * max / 3); break;
 		case BM_222_NIGHT_DEMON:			melee(7, hit - 15, min / 3, max / 3); break;
 		case BM_240_DEMON_PRIEST:			melee(6, hit + 30, min / 4, max / 3); break;
 		case BM_245_BLUNDERER:				melee(8, hit - 2, min * 2, max * 2); break;
 		case BM_246_GREATER_MUMMY: if (Dungeon->level >= 11)  melee(14, hit - 15, 2 * min / 3, 3 * max / 4); break;
 		case BM_247_SIEGEBREAKER_BEAST or BM_231_BEASTMASTER_SUMMON_3:	melee( 8, hit, 2 * min, 7 * max / 3); break;
-		case BM_228_NECROMANT_SUMMON_3:		melee(14, hit, 3 * min / 2, 3 * max / 2); break;
+		case BM_228_NECROMANCER_SUMMON_3:		melee(14, hit, 3 * min / 2, 3 * max / 2); break;
 		case BM_225_DEMONOLOG_SUMMON_3:			melee( 9, hit, min, max); break;
 		case BM_254_TWILIGHT_CLAN:			melee(12, hit, 2*min, 2*max); break;
 		case BM_265_CROC or BM_266_CROC_BERS:
@@ -12380,7 +12380,7 @@ void __fastcall MakeGolem( unsigned int summonIndex, int row, int col, int spell
 				armorClass = owner.CurMagic * clvl / 300 /* 40 */ + clvl / 2 + 2 * slvl + 1 + RNG(((clvl / 10) + 5)); // from [2-6]  to = 40 + 25 + 51 +[0-9] = [116-125]
 				break;
             }        
-		case BM_226_NECROMANT_SUMMON_1: // skeletal archer
+		case BM_226_NECROMANCER_SUMMON_1: // skeletal archer
             {
                 summonLife =  (((owner.CurMagic * clvl) / 16) << 6) + (owner.MaxCurMana / 5) + RNG(((clvl + 5) << 6) ); // start with: 15-20, end with: [1500-1600]
 				toHit = owner.CurMagic * clvl / 500 /* 40 */ + clvl / 2 + slvl / 2 + 12 + RNG((clvl / 10) + 7); //  from: 12 +[0-6] = [12-18]  to: 40 + 25 + 25 + 12 +[0-11] = [102-113]
@@ -12400,7 +12400,7 @@ void __fastcall MakeGolem( unsigned int summonIndex, int row, int col, int spell
 				armorClass = owner.CurMagic * clvl / 2000 /* 10 */ + clvl / 2 + slvl + RNG(((clvl / 10) + 5)); // from [1-5]  to = 10 + 25 + 50 +[0-9] = [85-94]
 				break;
             }
-        case BM_227_NECROMANT_SUMMON_2: // skeletal warrior
+        case BM_227_NECROMANCER_SUMMON_2: // skeletal warrior
             {
                 summonLife =  (((owner.CurMagic * clvl) / 7) << 6) + (owner.MaxCurMana / 2) + RNG((((2 * clvl) + 15) << 6) ); // start with: 24, end with: 4166 + 250 + [0-115] = [4400-4500]
 				toHit = owner.CurMagic * clvl / 333 /* 60 */ + clvl / 2 + slvl / 2 + 12 + RNG((clvl / 10) + 7); //  from: 12 +[0-6] = [12-18] to: 60 + 25 + 25 + 12 +[0-11] = [122-133]
@@ -12420,7 +12420,7 @@ void __fastcall MakeGolem( unsigned int summonIndex, int row, int col, int spell
 				armorClass = owner.CurMagic * clvl / 500 /* 40 */ + clvl / 2 + slvl + RNG(((clvl / 10) + 5)); // from [1-5]  to = 40 + 25 + 50 +[0-9] = [115-124]
 				break;
             }
-        case BM_228_NECROMANT_SUMMON_3: // greater skeleton
+        case BM_228_NECROMANCER_SUMMON_3: // greater skeleton
             {
                 summonLife =  ((owner.CurMagic * clvl / 5) << 6) + (owner.MaxCurMana * 2) + RNG((((10 * clvl) + 15) << 6) ); // start with: [120-144], end with: 12500 + 1000 + [0-514] = [9500-10500]
 				toHit = owner.CurMagic * clvl / 300 /* 66 */ + clvl / 2 + slvl / 2 + 12 + RNG((clvl / 10) + 7); //  from: 12 +[0-6] = [12-18]  to: 66 + 25 + 25 + 12 +[0-11] = [128-139]

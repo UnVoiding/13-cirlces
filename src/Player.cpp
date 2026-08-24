@@ -2124,6 +2124,9 @@ void __fastcall CreatePlayer( int playerIndex, char classId, char subclassId, ch
 		player.AvailableSpellMask |= BIT(PS_52_LESSER_SUMMON);
 		player.SpellLevels[PS_52_LESSER_SUMMON] = 1;
 		player.AvailableSkillMask |= BIT(PS_55_UNSUMMON);
+		if( player.fullClassId == PFC_NECROMANCER ){
+			player.AvailableSkillMask |= BIT(PS_62_INSPECT_CORPSE);
+		}
 	}
 	for( int i = 0; i < 4; i++){
 		player.SpellOnFuncKeys[i] = -1;
@@ -2565,6 +2568,9 @@ void __fastcall InitPlayer( uint playerIndex, int loadFromIngameMenu )
     }
 	if( is( player.fullClassId, PFC_NECROMANCER, PFC_DEMONOLOGIST, PFC_BEASTMASTER) ){
         player.AvailableSkillMask |= BIT(PS_55_UNSUMMON);
+    }
+    if( player.fullClassId == PFC_NECROMANCER ){
+        player.AvailableSkillMask |= BIT(PS_62_INSPECT_CORPSE);
     }
     
 	player.NextLevelUp = LevelUp( player.CharLevel );

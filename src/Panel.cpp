@@ -1685,6 +1685,26 @@ void DrawInfoPanel()
 			sprintf( InfoPanelBuffer, "Hit Points %i of %i", Players[ Cur.playerIndex ].CurLife >> 6, Players[ Cur.playerIndex ].MaxCurLife >> 6 );
 			InfoPanel_AddLine( InfoPanelBuffer, 1 );
 		}
+		// Necromancer's Inspect Corpse: while this spell is selected, hovering a tile with corpses shows what died there
+		if( Cur.ItemID == -1 && Cur.ObjectIndex == -1 && CurMon == -1 && Cur.playerIndex == -1
+			&& Cur.Row >= 0 && Cur.Row < FineMap_112 && Cur.Col >= 0 && Cur.Col < FineMap_112
+			&& Players[ CurrentPlayerIndex ].CurrentSpellIndex == PS_62_INSPECT_CORPSE ){
+			CorpseStack& corpseStack = DeathMonstersMap[ Cur.Row ][ Cur.Col ];
+			if( corpseStack.count ){
+				CurFontColor = C_0_White;
+				InfoPanelHeader[0] = 0;
+				InfoPanel_ClearBody();
+				int linesToShow = corpseStack.count < 5 ? corpseStack.count : 5; // info panel can't fit more than 5 lines without a header
+				for( int i = 0; i < linesToShow; i++ ){
+					int entryIndex = corpseStack.count - 1 - i; // newest corpse (top of the stack) first
+					int spriteIndex = (corpseStack.entries[ entryIndex ] & 0xff) - 1;
+					if( spriteIndex >= 0 && spriteIndex < DeadMonsters_Sprites_Max_Count ){
+						sprintf( InfoPanelBuffer, "%s corpse", BaseMonsters[ dead[ spriteIndex ].baseMonsterIndex ].name );
+						InfoPanel_AddLine( InfoPanelBuffer, 1 );
+					}
+				}
+			}
+		}
 		ShowSign(); // signes patch (4)
 	}else{
 		Player& player = Players[ CurrentPlayerIndex ];

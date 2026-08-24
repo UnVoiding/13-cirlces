@@ -149,4 +149,5 @@ BaseMissile BaseMissiles[MI_count] = {
 /* 143	*/ { MI_143_BULLET,	CastArrow,	ActArrow,	1,	MT_0_ARROW,	ET_0_PHYSICAL,	MIS_84_BULLET,	0,	S_M1_NO_SOUND,	S_M1_NO_SOUND }, //copy of MI_0_NONE_ARROW
 /* 144	*/ { MI_144_HYDRAMANCER_CHARGED_BOLT,	CastHydramancerChargedBolt,	ActHydramancerChargedBolt,	1,	MT_1_MAGIC,	ET_2_LIGHTNING,	MIS_26_MINILTNG,	0,	S_102_CBOLT,	S_83_CAST3 }, // Charged Bolt used by Hydramancer's Hydra
 /* 145	*/ { MI_145_TENTACLE,	CastTentacle,	ActTentacle,	1,	MT_1_MAGIC,	ET_0_PHYSICAL,	MIS_85_TENTACLE,	0,	S_M1_NO_SOUND,	S_1849_TENTACLIST_HIT }, 											//	Firebolt ?
+/* 146	*/ { MI_146_INSPECT_CORPSE,	CastUnsummon,	ActNullSpell,	0,	MT_2_MAGIC_EXPLODE,	ET_0_PHYSICAL,	MIS_M1_NONE,	0,	S_M1_NO_SOUND,	S_M1_NO_SOUND }, 						//	Necromancer's Inspect Corpse (same cast effect as MI_125_UNSUMMON)
 };

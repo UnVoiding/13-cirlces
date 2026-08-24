@@ -4346,7 +4346,7 @@ void __fastcall KeyPressHandler(WPARAM key)
 			static constexpr int shortcut_capacity = 8; // static inline const [C++03]
 			static volatile int GlobalCustomKeys[shortcuts_amount][shortcut_capacity] = {
 				/*A*/{PS_19_FLAME_RING,PS_6_FIRE_WALL,PS_20_INCINERATE,0,0,0,0,0},
-				/*B*/{PS_52_LESSER_SUMMON,PS_53_COMMON_SUMMON,PS_54_GREATER_SUMMON,PS_55_UNSUMMON,0,0,0,0},
+				/*B*/{PS_52_LESSER_SUMMON,PS_53_COMMON_SUMMON,PS_54_GREATER_SUMMON,PS_55_UNSUMMON,PS_62_INSPECT_CORPSE,0,0,0},
 				/*C*/{0,0,0,0,0,0,0,0},
 				/*D*/{PS_15_FORCE_WAVE,PS_29_ELEMENTAL,PS_36_BONE_SPIRIT,0,0,0,0,0},
 				/*E*/{PS_31_HOLY_BOLT,PS_39_HOLY_NOVA,0,0,0,0,0,0},
@@ -4378,7 +4378,7 @@ void __fastcall KeyPressHandler(WPARAM key)
 				/*F5*/{PS_56_ICE_BOLT,PS_59_RANCID_BOLT,PS_52_LESSER_SUMMON,0,0,0,0,0},
 				/*F6*/{PS_57_FREEZING_BALL,PS_60_TOXIC_BALL,PS_53_COMMON_SUMMON,0,0,0,0,0},
 				/*F7*/{PS_58_FROST_NOVA,PS_61_ACID_NOVA,PS_54_GREATER_SUMMON,0,0,0,0,0},
-				/*F8*/{PS_55_UNSUMMON,0,0,0,0,0,0,0},
+				/*F8*/{PS_55_UNSUMMON,PS_62_INSPECT_CORPSE,0,0,0,0,0,0},
 				/*F9*/{0,0,0,0,0,0,0,0},
 				/*F10*/{0,0,0,0,0,0,0,0},
 				/*F11*/{0,0,0,0,0,0,0,0},
@@ -4471,6 +4471,7 @@ void __fastcall KeyPressHandler(WPARAM key)
 						else if (!_stricmp(data, "COMMON_SUMMON"))	spell = PS_53_COMMON_SUMMON;
 						else if (!_stricmp(data, "GREATER_SUMMON"))	spell = PS_54_GREATER_SUMMON;
 						else if (!_stricmp(data, "UNSUMMON"))		spell = PS_55_UNSUMMON;
+						else if (!_stricmp(data, "INSPECT_CORPSE"))	spell = PS_62_INSPECT_CORPSE;
 						// additionally
 						else if (!_stricmp(data, "ITEM_REPAIR"))	spell = PS_26_ITEM_REPAIR;
 						else if (!_stricmp(data, "ITEM_RECHARGE"))	spell = PS_27_STAFF_RECHARGE;
