@@ -174,6 +174,7 @@ bool SelectGameModeLater = true;
 double TimeSpeedStep1 = 1.0;
 double TimeSpeedStep2 = 1.5;
 double TimeSpeedStep3 = 2.0;
+int RaiseBonesRadius = 3; // clamped to [0,5] regardless of config.ini value, see ConfigLoad
 
 // терерь используется cfg<ParamName>, вместо ручного со!ния переменной под каждый буфер строки параметра
 // также добавлена возможность задавать значение по умолчнию, пока только для bool параметров
@@ -307,6 +308,7 @@ ConfigLine ConfigStructure[] = {
 	{ cfgString, 0, "TimeSpeedStep1", 0, &cfg<TimeSpeedStep1> },
 	{ cfgString, 0, "TimeSpeedStep2", 0, &cfg<TimeSpeedStep2> },
 	{ cfgString, 0, "TimeSpeedStep3", 0, &cfg<TimeSpeedStep3> },
+	{ cfgString, MO_INT, "RaiseBonesRadius", "Raise Bones corpse search radius", &cfg<RaiseBonesRadius> },
 
 	{ cfgEnd }
 };
@@ -376,6 +378,11 @@ void GetUserParameters()
 		if( step1 > 0.0 ) TimeSpeedStep1 = step1;
 		if( step2 > 0.0 ) TimeSpeedStep2 = step2;
 		if( step3 > 0.0 ) TimeSpeedStep3 = step3;
+		if( cfg<RaiseBonesRadius>[0] ){ // leave the compiled-in default (3) if the key is absent from config.ini; 0 is otherwise a valid explicit value
+			int raiseBonesRadius = atoi( cfg<RaiseBonesRadius> );
+			LimitToRange( raiseBonesRadius, 0, 5 );
+			RaiseBonesRadius = raiseBonesRadius;
+		}
 		TimeSpeeds[0] = TimeSpeedStep1;
 		TimeSpeeds[1] = TimeSpeedStep2;
 		TimeSpeeds[2] = TimeSpeedStep3;

@@ -5306,6 +5306,50 @@ void RecalcSummonOrder( int ownerIndex, int summonType )
 }
 
 //----- (th2) -------------------------------------------------------------
+// While in battle, a corpse tile occupied by any living monster (enemy or player's own summon) is not a legal
+// Raise Bones target. Outside of battle, occupancy doesn't matter. "In battle" reuses the same level-wide,
+// distance-independent definition as the "In battle... %i monsters" indicator (see IsSomeMonstersActivated()).
+bool IsRaiseBonesTileBlocked( int row, int col, bool inBattle )
+{
+    if( !inBattle ) return false;
+    int monsterNumber = MonsterMap[ row ][ col ];
+    if( !monsterNumber ) return false;
+    int monsterIndex = abs( monsterNumber ) - 1;
+    if( monsterIndex < 0 || monsterIndex >= Monsters_Max_Count ) return false;
+    return ( Monsters[ monsterIndex ].CurrentLife & ~63 ) > 0; // alive
+}
+
+//----- (th2) -------------------------------------------------------------
+// Searches outward in concentric square rings (0..RaiseBonesRadius, config-clamped to [0,5]) from the clicked tile
+// for the nearest eligible corpse tile. Ties at the same ring are broken randomly. Returns false if none found.
+bool FindRaiseBonesTarget( int clickRow, int clickCol, int* outRow, int* outCol )
+{
+    bool inBattle = IsSomeMonstersActivated() != 0;
+    std::vector<std::pair<int,int>> candidates;
+    for( int d = 0; d <= RaiseBonesRadius; ++d ){
+        candidates.clear();
+        int rowMin = clickRow - d, rowMax = clickRow + d;
+        int colMin = clickCol - d, colMax = clickCol + d;
+        for( int row = rowMin; row <= rowMax; ++row ){
+            for( int col = colMin; col <= colMax; ++col ){
+                if( d > 0 && row != rowMin && row != rowMax && col != colMin && col != colMax ) continue; // ring border only, interior already checked at smaller d
+                if( !To112( row, col ) ) continue;
+                if( !DeathMonstersMap[ row ][ col ].count ) continue;
+                if( IsRaiseBonesTileBlocked( row, col, inBattle ) ) continue;
+                candidates.push_back( { row, col } );
+            }
+        }
+        if( !candidates.empty() ){
+            const auto& pick = candidates[ RNG( (int)candidates.size() ) ];
+            *outRow = pick.first;
+            *outCol = pick.second;
+            return true;
+        }
+    }
+    return false;
+}
+
+//----- (th2) -------------------------------------------------------------
 void __fastcall CastUnsummon( int missileIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage )
 {
     Missile& missile = Missiles[missileIndex];

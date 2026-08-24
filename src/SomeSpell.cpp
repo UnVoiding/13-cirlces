@@ -160,8 +160,11 @@ void __fastcall CastPlayerSpell(int casterIndex, int spellIndex, int casterX, in
 	}
 
 	if( spellIndex == PS_63_RAISE_BONES ){
-		// No corpse under the target tile: do nothing (checked identically on every client so the corpse pile stays in sync).
-		if( !To112(targetX, targetY) || !DeathMonstersMap[targetX][targetY].count ){
+		// No corpse under the target tile, or the tile became ineligible (e.g. a monster stepped onto it) between the
+		// client resolving its target and this cast being processed: do nothing (checked identically on every client
+		// so the corpse pile stays in sync).
+		if( !To112(targetX, targetY) || !DeathMonstersMap[targetX][targetY].count
+			|| IsRaiseBonesTileBlocked(targetX, targetY, IsSomeMonstersActivated() != 0) ){
 			return;
 		}
 		// Not enough HP left to safely pay the cost: do nothing (mirrors the mana check above, but this spell also costs health).

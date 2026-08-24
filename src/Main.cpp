@@ -4006,11 +4006,10 @@ bool __fastcall SpellCasting()
 		return false;
 	}
 
-	// Raise Bones needs a corpse under the cursor; otherwise it does nothing (no cost, no interruption), just a rejection voice line.
-	if (currentSpellNumber == PS_63_RAISE_BONES
-		&& (CurMon != -1 || Cur.playerIndex != -1
-			|| Cur.Row < 0 || Cur.Row >= FineMap_112 || Cur.Col < 0 || Cur.Col >= FineMap_112
-			|| !DeathMonstersMap[Cur.Row][Cur.Col].count)) {
+	// Raise Bones needs an eligible corpse within RaiseBonesRadius tiles of the clicked tile; otherwise it does nothing
+	// (no cost, no interruption), just a rejection voice line. The resolved tile is reused below when dispatching the cast.
+	int raiseBonesRow = -1, raiseBonesCol = -1;
+	if (currentSpellNumber == PS_63_RAISE_BONES && !FindRaiseBonesTarget(Cur.Row, Cur.Col, &raiseBonesRow, &raiseBonesCol)) {
 		// Guard against overlap: SpellCasting() can be re-entered in quick succession (e.g. held right-click repeat),
 		// and unlike a single fixed voice line, two different random picks aren't deduped by the sound engine's "already playing" check.
 		if( !ThisSoundIsPlaying(Sounds[S_557_SOR_40]) && !ThisSoundIsPlaying(Sounds[S_558_SOR_41]) ){
@@ -4097,6 +4096,10 @@ bool __fastcall SpellCasting()
 			NetSendCmdLocParam2(0, CMD_14_SPELLXY, row, col, currentSpellNumber, spellLevel); //limited XY spells
 		}
 
+	}
+	else if (currentSpellNumber == PS_63_RAISE_BONES) { // target resolved above by FindRaiseBonesTarget, independent of what's literally under the cursor
+		int spellLevel = PlayerSpellLevel(CurrentPlayerIndex, currentSpellNumber); // spell level calc at rmb click
+		NetSendCmdLocParam2(0, CMD_14_SPELLXY, raiseBonesRow, raiseBonesCol, currentSpellNumber, spellLevel);
 	}
 	else if (currentSpellNumber == PS_6_FIRE_WALL || currentSpellNumber == PS_40_LIGHTING_WALL) { // walls
 		int orientation = OrientationToTarget(player.Row, player.Col, Cur.GroundRow, Cur.GroundCol);

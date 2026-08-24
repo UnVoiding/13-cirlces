@@ -1331,6 +1331,7 @@ extern bool MapBlend;
 extern bool showCombatText;
 extern int FloatingHPRegenThreshold;
 extern int FloatingManaRegenThreshold;
+extern int RaiseBonesRadius;
 extern int ScreenCenterUserShiftVertical;
 extern bool ShowBreakWarning;
 extern bool showInflictedDamage;
