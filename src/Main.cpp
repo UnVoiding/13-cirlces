@@ -4011,8 +4011,11 @@ bool __fastcall SpellCasting()
 		&& (CurMon != -1 || Cur.playerIndex != -1
 			|| Cur.Row < 0 || Cur.Row >= FineMap_112 || Cur.Col < 0 || Cur.Col >= FineMap_112
 			|| !DeathMonstersMap[Cur.Row][Cur.Col].count)) {
-		voiceIndex = playerClass.Voice[PLAYER_VOICE_NO_ROOM];
-		PlayGlobalSound(voiceIndex);
+		// Guard against overlap: SpellCasting() can be re-entered in quick succession (e.g. held right-click repeat),
+		// and unlike a single fixed voice line, two different random picks aren't deduped by the sound engine's "already playing" check.
+		if( !ThisSoundIsPlaying(Sounds[S_557_SOR_40]) && !ThisSoundIsPlaying(Sounds[S_558_SOR_41]) ){
+			PlayGlobalSound(RNG(2) ? S_557_SOR_40 : S_558_SOR_41); // "I cannot do that"
+		}
 		return false;
 	}
 
