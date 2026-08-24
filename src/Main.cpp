@@ -4043,11 +4043,10 @@ bool __fastcall SpellCasting()
 		return false;
 	}
 
-	// Raise Bones also costs HP; refuse the cast (with the same "not enough resources" voice line used for mana) if it would be fatal or worse.
+	// Raise Bones also costs HP; refuse the cast if it would be fatal or worse.
 	if (!(DevelopMode && FreeSpell) && currentSpellNumber == PS_63_RAISE_BONES
 		&& player.CurLife <= (RaiseBonesHPCost << 6)) {
-		voiceIndex = playerClass.Voice[PLAYER_VOICE_WITH_SPELL_TYPE];
-		PlayGlobalSound(voiceIndex);
+		PlayGlobalSound(S_553_SOR_36); // Mage36.wav
 		return false;
 	}
 

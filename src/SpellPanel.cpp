@@ -60,7 +60,7 @@ PLAYER_SPELL LearnedSpells(int page, int line)
 		PS_57_FREEZING_BALL,
 		PS_58_FROST_NOVA,
 		PS_M1_NONE,
-		PS_M1_NONE,
+		PS_63_RAISE_BONES,
 		PS_M1_NONE,
 		PS_52_LESSER_SUMMON,
 		PS_53_COMMON_SUMMON,
@@ -173,6 +173,7 @@ void WriteSummonSpellBookInfo(PLAYER_SPELL minionTypeSpell, int LINE_HEIGHT, int
 		case PS_52_LESSER_SUMMON: summontype = SUM_LESSER;	break;
 		case PS_53_COMMON_SUMMON: summontype = SUM_COMMON;	break;
 		case PS_54_GREATER_SUMMON: summontype = SUM_GREATER; break;
+		case PS_63_RAISE_BONES: summontype = SUM_RAISE_BONES; break;
 		}
 		sprintf(InfoPanelBuffer, "Max amount: %i", CalculateSummonsMaxAmount(summontype, slvl, CurrentPlayerIndex));
 		drawLine(InfoPanelBuffer);
@@ -282,7 +283,8 @@ void WriteSummonSpellBookInfo(PLAYER_SPELL minionTypeSpell, int LINE_HEIGHT, int
 						drawLine(InfoPanelBuffer);
 						break;
 				}
-				case PS_53_COMMON_SUMMON: {
+				case PS_53_COMMON_SUMMON:
+				case PS_63_RAISE_BONES: {
 						minLife = (((owner.CurMagic * clvl) / 7) << 6) + (owner.MaxCurMana / 2);
 						maxLife = minLife + (((2 * clvl) + 15) << 6);
 						minAccuracyFirst = owner.CurMagic * clvl / 333 + clvl / 2 + slvl / 2 + 12;
@@ -1099,6 +1101,9 @@ void DrawSpellBook()
 		else if (spellIndex == PS_54_GREATER_SUMMON) {
 			WriteSummonSpellBookInfo(PS_54_GREATER_SUMMON, LINE_HEIGHT, lineIndex);
 		}
+		else if (spellIndex == PS_63_RAISE_BONES) {
+			WriteSummonSpellBookInfo(PS_63_RAISE_BONES, LINE_HEIGHT, lineIndex);
+		}
 		else if (spellIndex == PS_10_PHASING) {
 			drawLine("quickly teleports caster");
 			drawLine("to nearby random location");
@@ -1212,7 +1217,7 @@ void DrawSpellBook()
 		}else if (spellIndex == PS_20_INCINERATE) {
 			sprintf(InfoPanelBuffer, "Damage per second: %i", minDamage);
 			drawLine(InfoPanelBuffer, 4);
-		}else if( minDamage != -1 && !( minDamage == 0 && maxDamage == 0 ) && !is(spellIndex, PS_21_GOLEM, PS_52_LESSER_SUMMON, PS_53_COMMON_SUMMON, PS_54_GREATER_SUMMON)){
+		}else if( minDamage != -1 && !( minDamage == 0 && maxDamage == 0 ) && !is(spellIndex, PS_21_GOLEM, PS_52_LESSER_SUMMON, PS_53_COMMON_SUMMON, PS_54_GREATER_SUMMON, PS_63_RAISE_BONES)){
             sprintf( InfoPanelBuffer, "Damage: %i-%i", minDamage, maxDamage );
 			int le_color;
 			//ELEMENTAL_TYPE damageType;
