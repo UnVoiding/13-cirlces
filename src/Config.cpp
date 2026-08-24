@@ -171,6 +171,9 @@ bool ColiseumInMainMenu = true;
 bool ClassicSaveFolder = true;
 bool ColiseumSaveFolder = true;
 bool SelectGameModeLater = true;
+double TimeSpeedStep1 = 1.0;
+double TimeSpeedStep2 = 1.5;
+double TimeSpeedStep3 = 2.0;
 
 // терерь используется cfg<ParamName>, вместо ручного со!ния переменной под каждый буфер строки параметра
 // также добавлена возможность задавать значение по умолчнию, пока только для bool параметров
@@ -301,6 +304,9 @@ ConfigLine ConfigStructure[] = {
 	{ cfgString, MO_BOOL, "ClassicSaveFolder", 0, &cfg<ClassicSaveFolder>, ON },
 	{ cfgString, MO_BOOL, "ColiseumSaveFolder", 0, &cfg<ColiseumSaveFolder>, ON },
 	{ cfgString, MO_BOOL, "SelectGameModeLater", 0, &cfg<SelectGameModeLater>, ON },
+	{ cfgString, 0, "TimeSpeedStep1", 0, &cfg<TimeSpeedStep1> },
+	{ cfgString, 0, "TimeSpeedStep2", 0, &cfg<TimeSpeedStep2> },
+	{ cfgString, 0, "TimeSpeedStep3", 0, &cfg<TimeSpeedStep3> },
 
 	{ cfgEnd }
 };
@@ -363,6 +369,17 @@ void GetUserParameters()
 	ReceivedDamageThreshold = atoi(cfg<ReceivedDamageThreshold>);
 	MonsterReceivedDamageThreshold = atoi(cfg<MonsterReceivedDamageThreshold>);
 	PlayerRunningSounds = atoi(cfg<PlayerRunningSounds>);
+	{
+		double step1 = atof(cfg<TimeSpeedStep1>);
+		double step2 = atof(cfg<TimeSpeedStep2>);
+		double step3 = atof(cfg<TimeSpeedStep3>);
+		if( step1 > 0.0 ) TimeSpeedStep1 = step1;
+		if( step2 > 0.0 ) TimeSpeedStep2 = step2;
+		if( step3 > 0.0 ) TimeSpeedStep3 = step3;
+		TimeSpeeds[0] = TimeSpeedStep1;
+		TimeSpeeds[1] = TimeSpeedStep2;
+		TimeSpeeds[2] = TimeSpeedStep3;
+	}
 	#if CHEATS
     if( !DevelopMode ){
         SaveAlwaysEnabled = false;

@@ -2006,7 +2006,7 @@ nanoseconds PrevTime{ 0 }, Tick{ 0 };
 
 double TimeSpeed = 1.0;
 
-const double TimeSpeeds[] = { 1.0, 1.25, 1.5 };
+double TimeSpeeds[] = { 1.0, 1.5, 2.0 }; // overridden from config.ini, see GetUserParameters()
 int CurTimeSpeedIndex = 0;
 
 //----- (th2) -------------------------------------------------------------

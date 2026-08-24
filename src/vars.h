@@ -1516,6 +1516,7 @@ extern BackLightColor blColor;
 
 extern bool InitBerserk;
 extern double TimeSpeed;
+extern double TimeSpeeds[];
 extern int CurTimeSpeedIndex;
 
 extern CharSaveInfo NewSaveInfo;
