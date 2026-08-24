@@ -1685,10 +1685,10 @@ void DrawInfoPanel()
 			sprintf( InfoPanelBuffer, "Hit Points %i of %i", Players[ Cur.playerIndex ].CurLife >> 6, Players[ Cur.playerIndex ].MaxCurLife >> 6 );
 			InfoPanel_AddLine( InfoPanelBuffer, 1 );
 		}
-		// Necromancer's Inspect Corpse: while this spell is selected, hovering a tile with corpses shows what died there
+		// Necromancer's Inspect Corpse (and Raise Bones, which targets corpses the same way): while either spell is selected, hovering a tile with corpses shows what died there
 		if( Cur.ItemID == -1 && Cur.ObjectIndex == -1 && CurMon == -1 && Cur.playerIndex == -1
 			&& Cur.Row >= 0 && Cur.Row < FineMap_112 && Cur.Col >= 0 && Cur.Col < FineMap_112
-			&& Players[ CurrentPlayerIndex ].CurrentSpellIndex == PS_62_INSPECT_CORPSE ){
+			&& is( Players[ CurrentPlayerIndex ].CurrentSpellIndex, PS_62_INSPECT_CORPSE, PS_63_RAISE_BONES ) ){
 			CorpseStack& corpseStack = DeathMonstersMap[ Cur.Row ][ Cur.Col ];
 			if( corpseStack.count ){
 				CurFontColor = C_0_White;
