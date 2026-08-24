@@ -929,7 +929,13 @@ extern ushort TotalSlain[400];//
 extern int MonsterIndexes[Monsters_Max_Count];//
 extern int MonstersCount;//
 extern bool SummonMonstersAdded;
-extern char SaveSound;//	
+// Snapshot of CurrentPlayerIndex's summons (SP only), captured by CarryPlayerSummonsAcrossLevel() right before
+// RemovePlayerMissiles() despawns them for a level change, and consumed by RestorePlayerSummonsAfterLevelChange()
+// once the new level is ready, so golems / raised skeletons follow the player up and down stairs instead of dying.
+extern DSummonStr CarriedSummonParams[SummonMonstersPerPlayer_Count];
+extern int CarriedSummonLife[SummonMonstersPerPlayer_Count];
+extern bool CarriedSummonValid[SummonMonstersPerPlayer_Count];
+extern char SaveSound;//
 extern Monster Monsters[Monsters_Max_Count];//	 MonstersArray
 extern int MonsterArraySize;//	
 extern MonsterSprite MonsterSprites[Monsters_Sprites_Max_Count];//

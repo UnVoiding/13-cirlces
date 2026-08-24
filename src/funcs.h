@@ -2169,9 +2169,13 @@ int CalculateCommonSummonsMaxAmount( int slvl );
 int CalculateSummonsMaxAmount( int summonType, int slvl, int playerindex );
 void GetSummonsTypeOffsets( int summonType, int* summonsStartIndex, int* summonsSlotsAmount, int playerindex );
 void KillExtraSummons( int ownerIndex, int summonType, int slvl );
+bool IsSummonMonsterOnMap( int monsterIndex );
+bool IsSummonAlive( int monsterIndex );
 bool IsRaiseBonesTileBlocked( int row, int col, bool inBattle );
 bool FindRaiseBonesTarget( int clickRow, int clickCol, int* outRow, int* outCol );
 void RecalcSummonOrder( int ownerIndex, int summonType );
+void CarryPlayerSummonsAcrossLevel();
+void RestorePlayerSummonsAfterLevelChange();
 
 void __fastcall Ai_Summon( uint monsterIndex, AiFunc* original );
 bool TeleportSummonToOwner( uint monsterIndex, uint ownerIndex );

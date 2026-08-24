@@ -2314,6 +2314,9 @@ int VisionId;
 int FullLighting;
 int MonstersCount;// 0069DC80
 bool SummonMonstersAdded;
+DSummonStr CarriedSummonParams[SummonMonstersPerPlayer_Count];
+int CarriedSummonLife[SummonMonstersPerPlayer_Count];
+bool CarriedSummonValid[SummonMonstersPerPlayer_Count];
 char SaveSound; // вроде через это передается IsSoundEnable между MayBe_KillDiabloEffect и Level16PlayerReset
 int MonsterArraySize;
 //int AfterDMap84x24;

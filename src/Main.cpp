@@ -5277,6 +5277,7 @@ void __fastcall LoadGameLevel(int startNewGame, int lvlDir)
 			}
 		}
 	}
+	RestorePlayerSummonsAfterLevelChange(); // bring back whatever CarryPlayerSummonsAcrossLevel() captured, now that the player has a final position on the destination level
 
 	if( Dungeon != DUN_0_TOWN ){
 		InitDungeonTiles();

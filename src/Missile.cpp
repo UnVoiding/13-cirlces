@@ -5306,6 +5306,66 @@ void RecalcSummonOrder( int ownerIndex, int summonType )
 }
 
 //----- (th2) -------------------------------------------------------------
+// Player summon slots are indexed by a fixed per-player range (SummonMonstersPerPlayer_Count each), so a given
+// summon keeps the same slot across levels. Called from RemovePlayerMissiles() - itself called from InitLevelChange(),
+// which fires synchronously the moment the player starts changing levels, before RemovePlayerMissiles' own loop below
+// despawns the summons - this snapshots every alive slot belonging to CurrentPlayerIndex while it's still intact, so
+// RestorePlayerSummonsAfterLevelChange() can bring them back once the destination level is ready. This must run before
+// that despawn: everything downstream (SaveLevel(), ClearMonsters() inside InitMonsterSlots(), etc.) only runs later,
+// once ChangeDungeon() picks up the WM_102x message, by which point the summons are already gone. Town never hosts
+// player summons (its monster sprite table is never populated with the summon base monsters, see GetDungeonMonsterTypes()),
+// so leaving town must not overwrite whatever was captured before entering it; Dungeon still holds the level being left
+// at this call site, since it isn't reassigned to the destination until later inside ChangeDungeon().
+void CarryPlayerSummonsAcrossLevel()
+{
+    if( MaxCountOfPlayersInGame != 1 || Dungeon == DUN_0_TOWN ) return;
+
+    const int ownerIndex = CurrentPlayerIndex;
+    const int summonsOffset = SummonMonstersPerPlayer_Count * ownerIndex;
+    for( int localOffset = 0; localOffset < SummonMonstersPerPlayer_Count; ++localOffset ){
+        int summonIndex = summonsOffset + localOffset;
+        if( !IsSummonAlive( summonIndex ) ){
+            CarriedSummonValid[localOffset] = false;
+            continue;
+        }
+        const Monster& monster = Monsters[summonIndex];
+        DSummonStr& params = CarriedSummonParams[localOffset];
+        params.spriteIndex = (uchar)monster.SpriteIndex;
+        params.summonType = 0; // unused by AwakeSummon() when restoring (only read for RecalcSummonOrder, which restoring skips)
+        params.summonLife = monster.BaseLife;
+        params.toHit = monster.ToHit;
+        params.minDamage = monster.MinDamage;
+        params.maxDamage = monster.MaxDamage;
+        params.toHitSecond = monster.SecondToHit;
+        params.minDamageSecond = monster.SecondMinDamage;
+        params.maxDamageSecond = monster.SecondMaxDamage;
+        params.armorClass = monster.ArmorClass;
+        CarriedSummonLife[localOffset] = monster.CurrentLife;
+        CarriedSummonValid[localOffset] = true;
+    }
+}
+
+//----- (th2) -------------------------------------------------------------
+// Recreates whatever CarryPlayerSummonsAcrossLevel() captured, once the destination level and the player's arrival
+// position on it are both ready. Spawns each summon on the player's own tile via AwakeSummon(restoring=true) - which
+// skips the spawn sound/animation so it reads as "it followed you" rather than a fresh summon - then nudges it onto
+// a free neighboring tile the same way the AI already teleports a lagging golem back to its owner.
+void RestorePlayerSummonsAfterLevelChange()
+{
+    if( MaxCountOfPlayersInGame != 1 || Dungeon == DUN_0_TOWN ) return;
+
+    const int ownerIndex = CurrentPlayerIndex;
+    const Player& owner = Players[ownerIndex];
+    const int summonsOffset = SummonMonstersPerPlayer_Count * ownerIndex;
+    for( int localOffset = 0; localOffset < SummonMonstersPerPlayer_Count; ++localOffset ){
+        if( !CarriedSummonValid[localOffset] ) continue;
+        int summonIndex = summonsOffset + localOffset;
+        AwakeSummon( summonIndex, owner.Row, owner.Col, CarriedSummonLife[localOffset], CarriedSummonParams[localOffset], true );
+        TeleportSummonToOwner( summonIndex, ownerIndex );
+    }
+}
+
+//----- (th2) -------------------------------------------------------------
 // While in battle, a corpse tile occupied by any living monster (enemy or player's own summon) is not a legal
 // Raise Bones target. Outside of battle, occupancy doesn't matter. "In battle" reuses the same level-wide,
 // distance-independent definition as the "In battle... %i monsters" indicator (see IsSomeMonstersActivated()).

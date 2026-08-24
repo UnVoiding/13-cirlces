@@ -3837,13 +3837,26 @@ void __fastcall RemovePlayerMissiles(int playerIndex)
 {
 	if( Dungeon != DUN_0_TOWN && playerIndex == CurrentPlayerIndex ){
 	    const int playerSummonsOffset = playerIndex * SummonMonstersPerPlayer_Count;
+	    // SP summons follow the player across levels instead of dying here: CarryPlayerSummonsAcrossLevel() must run
+	    // before this loop below removes them, since it's the last point where they're still intact - everything the
+	    // level change triggers afterwards (SaveLevel(), ClearMonsters(), the new level's load) runs later, asynchronously.
+	    const bool carrySummons = MaxCountOfPlayersInGame == 1;
+	    if( carrySummons ){
+	        CarryPlayerSummonsAcrossLevel();
+	    }
         for( int summonIndex = 0; summonIndex < SummonMonstersPerPlayer_Count; ++summonIndex  ){
             Monster& summon = Monsters[ summonIndex + playerSummonsOffset ];
             if( summon.Row != 1 || summon.Col ){
-                KillMonsterByPlayer( summonIndex + playerSummonsOffset, playerIndex );
-                AddMonsterCorpse(summon.Row, summon.Col, summon.newBossId ? summon.udeadNum : summon.SpritePtr->deadSpriteNum, summon.Orientation);
-                summon.flag |= MF_15_KILLED;
-                MonsterMap[ summon.Row ][ summon.Col ] = 0;
+                if( carrySummons ){
+                    // Quiet despawn - it's following the player, not dying, so skip the kill/corpse/loot treatment below.
+                    MonsterMap[ summon.Row ][ summon.Col ] = 0;
+                    summon.flag |= MF_15_KILLED;
+                }else{
+                    KillMonsterByPlayer( summonIndex + playerSummonsOffset, playerIndex );
+                    AddMonsterCorpse(summon.Row, summon.Col, summon.newBossId ? summon.udeadNum : summon.SpritePtr->deadSpriteNum, summon.Orientation);
+                    summon.flag |= MF_15_KILLED;
+                    MonsterMap[ summon.Row ][ summon.Col ] = 0;
+                }
             }
         }
         RemoveKilledMonsters();
