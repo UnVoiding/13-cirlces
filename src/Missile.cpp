@@ -5560,11 +5560,12 @@ void __fastcall CastManaRecharge( int missileIndex, int casterRow, int casterCol
 		manaAddsCount = 4 * manaAddsCount / 10; // mage classes now have less mana recovered from Mana spell
 	}
 	// 00433FA7
+	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana via mana charges, up to 2x max
 	player.CurMana += manaAddsCount;
-	LimitToMax(player.CurMana, player.MaxCurMana);
+	LimitToMax(player.CurMana, manaCap);
 	// 00433FC7
 	player.BaseMana += manaAddsCount;
-	LimitToMax(player.BaseMana, player.MaxBaseMana);
+	LimitToMax(player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana));
 	// 00433FF3
 	MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_37_MANA_RECHARGE);
 	missile.IsDeleted = true;
@@ -5575,8 +5576,9 @@ void __fastcall CastMagi( int missileIndex, int casterRow, int casterCol, int ta
 {
 	Missile& missile = Missiles[missileIndex];
 	Player& player = Players[casterIndex];
-	player.CurMana = player.MaxCurMana;
-	player.BaseMana = player.MaxBaseMana;
+	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana via magi charges, up to 2x max
+	player.CurMana = manaCap;
+	player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
 	MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_38_MAGI);
 	missile.IsDeleted = true;
 }

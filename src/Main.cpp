@@ -2724,14 +2724,18 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 		}
 	}
 
-	bool isMageArchetype = is(player.fullClassId, PFC_MAGE, PFC_ELEMENTALIST, PFC_DEMONOLOGIST, PFC_NECROMANCER, PFC_BEASTMASTER, PFC_WARLOCK);
-	int manaOverflowCap = isMageArchetype ? player.MaxCurMana * 2 : player.MaxCurMana; // mages can regen mana past their max, up to 2x max
+	bool isMageArchetype = IsMageArchetype(player.fullClassId);
 	if (isMageArchetype && player.CurMana > player.MaxCurMana) {
-		manaAdd -= (player.CurMana - player.MaxCurMana) * 2 / 100; // regen decays the higher above max mana currently sits
+		manaAdd -= (player.CurMana - player.MaxCurMana) * 2 / 100; // mana above max (from potions/mana charges/magi charges) decays back toward max over time
 	}
 
 	if( player.CurMana <= 0 && manaAdd <= 0 ){
 		manaAdd = 0;
+	}
+	// natural regen alone can never push mana past max; it can only let existing overflow (from other sources) decay
+	int manaCapThisTick = player.MaxCurMana;
+	if (isMageArchetype && player.CurMana > manaCapThisTick) {
+		manaCapThisTick = player.CurMana;
 	}
 	player.CurMana += manaAdd;
 	player.BaseMana += manaAdd;
@@ -2740,8 +2744,8 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 			ManaRegen = manaAdd;
 		}
 	}
-	if( player.CurMana > manaOverflowCap ){
-		player.CurMana = manaOverflowCap;
+	if( player.CurMana > manaCapThisTick ){
+		player.CurMana = manaCapThisTick;
 		player.BaseMana = player.MaxBaseMana + player.CurMana - player.MaxCurMana;
 	}
 	// Fix ManaShied above zero life invulnerability hack

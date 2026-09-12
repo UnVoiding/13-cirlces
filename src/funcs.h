@@ -2303,6 +2303,11 @@ int GetTraitSpellIcon( TraitId id );
 template<typename... T> __forceinline bool HasTrait(uint playerIndex, T&&... val){ return playerIndex > 3 ? false : has(Players[playerIndex].traits, val...); }
 template<typename... T> __forceinline bool CurTrait(T&&... val){ return has(Players[CurrentPlayerIndex].traits, val...); }
 
+// Mage, Elementalist, Demonologist, Necromancer, Beastmaster, Warlock: the classes tagged "MAGE" in PFC_ enum
+__forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_MAGE, PFC_ELEMENTALIST, PFC_DEMONOLOGIST, PFC_NECROMANCER, PFC_BEASTMASTER, PFC_WARLOCK); }
+// mage-archetype classes can be topped up past their max mana (by potions/mana charges/magi charges, not by natural regen) up to 2x max
+__forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
+
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);
 
 PlayerStat GetPlayerMaxStat( int playerIndex );

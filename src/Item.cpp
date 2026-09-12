@@ -137,19 +137,20 @@ bool UseHealingPotion(int playerIndex)
 bool UseFullManaPotion(int playerIndex)
 {
 	Player& player = Players[playerIndex];
-	if( player.CurMana != player.MaxCurMana ){
+	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana, up to 2x max
+	if( player.CurMana < manaCap ){
 		if (HasTrait(playerIndex, TraitId::Giant)) {
 			int manaAdd = player.MaxCurMana / 2;
 			player.CurMana += manaAdd;
 			player.BaseMana += manaAdd;
-			if (player.CurMana > player.MaxCurMana) {
-				player.CurMana = player.MaxCurMana;
-				player.BaseMana = player.MaxBaseMana;
+			if (player.CurMana > manaCap) {
+				player.CurMana = manaCap;
+				player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
 			}
 		}
 		else {
-			player.CurMana = player.MaxCurMana;
-			player.BaseMana = player.MaxBaseMana;
+			player.CurMana = manaCap;
+			player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
 		}
         return true;
     }else{
@@ -161,10 +162,11 @@ bool UseFullManaPotion(int playerIndex)
 bool UseManaPotion(int playerIndex)
 {
 	Player& player = Players[playerIndex];
-	if( player.CurMana != player.MaxCurMana ){
+	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana, up to 2x max
+	if( player.CurMana < manaCap ){
         int manaAdd = RNG(player.MaxCurMana >> 8);
         int maxMana = (player.MaxCurMana >> 8) & ~1;
-        manaAdd = VariatePotionsByDifficulty( manaAdd, maxMana ); 
+        manaAdd = VariatePotionsByDifficulty( manaAdd, maxMana );
         if( is( player.fullClassId, PFC_EXECUTIONER, PFC_SHUGOKI, PFC_SAVAGE ) ){
             manaAdd /= 2;
         }
@@ -173,11 +175,12 @@ bool UseManaPotion(int playerIndex)
 		}
         player.CurMana += manaAdd;
         player.BaseMana += manaAdd;
-        if( player.CurMana > player.MaxCurMana ){
-            player.CurMana = player.MaxCurMana;
+        int baseManaCap = player.MaxBaseMana + (manaCap - player.MaxCurMana);
+        if( player.CurMana > manaCap ){
+            player.CurMana = manaCap;
         }
-        if( player.BaseMana > player.MaxBaseMana ){
-            player.BaseMana = player.MaxBaseMana;
+        if( player.BaseMana > baseManaCap ){
+            player.BaseMana = baseManaCap;
         }
         return true;
     }else{
