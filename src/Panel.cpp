@@ -832,8 +832,9 @@ void DrawManaGlobeTop()
 	height += 2;
 	PutWithAlpha(ManaShereImage, 88, 277, WorkingSurface, WorkingWidth * 499 + 475 + Screen_LeftBorder, height);
 	if( height != 13 ){
-		int manaDarkLevel = ManaOverflowDarkLevel(player); // darken the liquid to show mana overflowing past max
-		PutWithAlpha(MainPanelImage, GUI_Width, GUI_Width * (height + 3) + 475, WorkingSurface, WorkingWidth * height + WorkingWidth * 499 + 475 + Screen_LeftBorder, 13 - height, manaDarkLevel);
+		// this sliver is only ever a couple pixels tall, so just tint the whole thing once any overflow is present
+		int manaTintLevel = ManaOverflowFillRatio(player) > 0 ? ManaOverflowTintLevel : 0;
+		PutWithAlpha(MainPanelImage, GUI_Width, GUI_Width * (height + 3) + 475, WorkingSurface, WorkingWidth * height + WorkingWidth * 499 + 475 + Screen_LeftBorder, 13 - height, manaTintLevel);
 	}
 }
 
@@ -888,8 +889,13 @@ void DrawManaGlobeBottom()
 		DrawEmptyGlobeBottom(ManaShereImage, 16, 85 - ratioManaGlobe, 464 + Screen_LeftBorder, 512);
 	}
 	if( ratioManaGlobe ){
-		int manaDarkLevel = ManaOverflowDarkLevel(player); // darken the liquid to show mana overflowing past max
-		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe, manaDarkLevel);
+		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe);
+	}
+	// mana above max: a second, darker-toned fill rises from the bottom of the (already full) globe as overflow climbs toward the 200%-of-max cap
+	int manaOverflowRatio = ManaOverflowFillRatio(player);
+	LimitToMax(manaOverflowRatio, 69);
+	if( manaOverflowRatio ){
+		CopyFromMainPanelToWorkingSurface(464, 85 - manaOverflowRatio, 88, manaOverflowRatio, 464 + Screen_LeftBorder, 581 - manaOverflowRatio, ManaOverflowTintLevel);
 	}
 
 	if (ShowNumbersOnMana) {
