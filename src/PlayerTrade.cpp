@@ -965,11 +965,11 @@ void WitchAdriaMenu()
 {
     Player& player = Players[CurrentPlayerIndex];
     if (GameMode != GM_COLISEUM && GameMode != GM_CLASSIC) {
-        if (player.CurMana != player.MaxCurMana) {
+        if (player.CurMana < player.MaxCurMana) { // don't clobber mage mana overflow (from potions/mana charges/magi charges)
             PlayGlobalSound(S_88_CAST9);
+            player.CurMana = player.MaxCurMana;
+            player.BaseMana = player.MaxBaseMana;
         }
-        player.CurMana = player.MaxCurMana;
-        player.BaseMana = player.MaxBaseMana;
     }
     IsBigMenuBox = false;
     DialogHasScroolBox = false;
