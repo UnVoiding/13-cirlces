@@ -64,6 +64,7 @@ void __fastcall DrawLetter( int aSurfaceOffset, int letterID, char fontColor, bo
 void __fastcall InfoPanel_AddLine( const char *str, int centered, const char* str2 = 0	);//	Panel		
 void  InfoPanel_ClearBody( );//	Panel		
 int __fastcall CopyFromMainPanelToWorkingSurface( int SrcX, int SrcY, int Width, int Height, int DstX, int DstY	);//	Panel
+void __fastcall FillWorkingSurfaceSolid( int DstX, int DstY, int Width, int Height, uchar colorIndex	);//	Panel
 void __fastcall DrawEmptyGlobeBottom( uchar *aMap88xNPtr, int aStartRow, int aEndRow, int aStartOffset, int aStartY	);//	Panel
 void __fastcall PutWithAlpha( uchar *aSrcSurface, int a2, int aSrcOffset, uchar *aDstSurface, int aDstOffset, int a6	);//	Panel
 void  DrawLifeGlobeTop( );//	Panel		
@@ -2309,6 +2310,14 @@ __forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_
 __forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
 // for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
 __forceinline int ManaCapNoNewOverflow(int preEffectCurMana, const Player& player){ return (IsMageArchetype(player.fullClassId) && preEffectCurMana > player.MaxCurMana) ? preEffectCurMana : player.MaxCurMana; }
+// fixed darker shade used to paint the mana overflow fill; a LightTable brightness level (0-15 are the safe generic darkness steps)
+enum { ManaOverflowTintLevel = 6 };
+// how much of the globe (on the same 0-80 scale as the normal fill ratio) the overflow fill should cover, rising from the
+// bottom of the globe as mana climbs from 100% to the 200%-of-max overflow cap; 0 once mana is back at/below max
+__forceinline int ManaOverflowFillRatio(const Player& player){
+	if( !IsMageArchetype(player.fullClassId) || player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
+	return ftol( double(player.CurMana - player.MaxCurMana) / double(player.MaxCurMana) * 80.0 );
+}
 
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);
 

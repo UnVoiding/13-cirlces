@@ -721,6 +721,25 @@ int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, 
 	return result;
 }
 
+// paints a flat rectangle of one solid color onto the working surface, using the same coordinate
+// convention as CopyFromMainPanelToWorkingSurface - used to show mana overflow as a solid darker
+// fill rising from the bottom of the globe (no source art / transparency involved)
+void __fastcall FillWorkingSurfaceSolid(int DstX, int DstY, int Width, int Height, uchar colorIndex)
+{
+	DstX += (ScreenWidth - GUI_Width)/2;
+	DstY += ScreenHeight - GUI_Height;
+
+	int DstWidth = WorkingWidth;
+	int DstHeight = ScreenHeight + 192;
+	for( int y = 0; (y < Height) && (y + DstY < DstHeight); y++ ){
+		if( y + DstY >= 0 ){
+			for( int x = 0; (x < Width) && (x + DstX < DstWidth); x++ ){
+				WorkingSurface[DstX + x + DstWidth * (DstY + y)] = colorIndex;
+			}
+		}
+	}
+}
+
 //----- (004045FC) -------------------------------------------------------- interface
 void __fastcall DrawEmptyGlobeBottom(uchar* aLifeShereImage, int aStartRow, int aEndRow, int aStartOffset, int aStartY)
 {
@@ -885,12 +904,15 @@ void DrawManaGlobeBottom()
 		DrawEmptyGlobeBottom(ManaShereImage, 16, 85 - ratioManaGlobe, 464 + Screen_LeftBorder, 512);
 	}
 	if( ratioManaGlobe ){
-		// NOTE: tried recoloring this liquid rectangle through LightTable to show mana overflow (both a full-rectangle
-		// tint and a bottom-up partial tint) - both produced a visible rectangular artifact against the globe's round
-		// silhouette. This graphic's corner/edge pixels appear to rely on matching their surroundings exactly rather
-		// than carrying real transparency, so recoloring any part of it breaks that illusion. Left undarkened until
-		// there's a reliable way (e.g. a real masked "dark liquid" asset) to tint just the round shape.
 		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe);
+	}
+	// mana above max: paint a flat darker fill rising from the bottom of the globe, on top of the normal liquid above
+	int manaOverflowRatio = ManaOverflowFillRatio(player);
+	LimitToMax(manaOverflowRatio, 69);
+	if( manaOverflowRatio ){
+		uchar manaLiquidSample = MainPanelImage[464 + 44 + GUI_Width * 80]; // a pixel deep in the liquid body
+		uchar manaOverflowColor = LightTable[256 * ManaOverflowTintLevel + manaLiquidSample];
+		FillWorkingSurfaceSolid(464 + Screen_LeftBorder, 581 - manaOverflowRatio, 88, manaOverflowRatio, manaOverflowColor);
 	}
 
 	if (ShowNumbersOnMana) {
