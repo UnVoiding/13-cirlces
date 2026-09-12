@@ -63,9 +63,9 @@ int __fastcall SelectSpellByHotKeyExpanded( int keyOffset );//	Panel
 void __fastcall DrawLetter( int aSurfaceOffset, int letterID, char fontColor, bool outline = false	);//	Panel		
 void __fastcall InfoPanel_AddLine( const char *str, int centered, const char* str2 = 0	);//	Panel		
 void  InfoPanel_ClearBody( );//	Panel		
-int __fastcall CopyFromMainPanelToWorkingSurface( int SrcX, int SrcY, int Width, int Height, int DstX, int DstY, int darkLevel = 0	);//	Panel
+int __fastcall CopyFromMainPanelToWorkingSurface( int SrcX, int SrcY, int Width, int Height, int DstX, int DstY	);//	Panel
 void __fastcall DrawEmptyGlobeBottom( uchar *aMap88xNPtr, int aStartRow, int aEndRow, int aStartOffset, int aStartY	);//	Panel
-void __fastcall PutWithAlpha( uchar *aSrcSurface, int a2, int aSrcOffset, uchar *aDstSurface, int aDstOffset, int a6, int darkLevel = 0	);//	Panel
+void __fastcall PutWithAlpha( uchar *aSrcSurface, int a2, int aSrcOffset, uchar *aDstSurface, int aDstOffset, int a6	);//	Panel
 void  DrawLifeGlobeTop( );//	Panel		
 void  DrawLifeGlobeBottom( );//	Panel		
 void  DrawManaGlobeTop( );//	Panel		
@@ -2309,19 +2309,6 @@ __forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_
 __forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
 // for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
 __forceinline int ManaCapNoNewOverflow(int preEffectCurMana, const Player& player){ return (IsMageArchetype(player.fullClassId) && preEffectCurMana > player.MaxCurMana) ? preEffectCurMana : player.MaxCurMana; }
-// how dark the mana globe's liquid should be tinted to show overflow: 0 = no overflow, up to ManaOverflowMaxDarkLevel at the 200%-of-max overflow cap.
-// This tints the whole liquid graphic at once (matching the exact rectangle a normal, non-overflowing fill would use) rather than
-// splitting it into two differently-colored regions: the liquid art has no per-pixel mask data to know which pixels are actually
-// "wet" versus edge/background filler, so recoloring only part of it (e.g. a rising band from the bottom) exposes that filler as
-// a visible rectangular patch instead of following the globe's round silhouette.
-enum { ManaOverflowMaxDarkLevel = 9 }; // LightTable brightness levels 0-15 are safe generic darkness steps; keep well clear of the special palettes above that
-__forceinline int ManaOverflowDarkLevel(const Player& player){
-	if( !IsMageArchetype(player.fullClassId) || player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
-	int overflow = player.CurMana - player.MaxCurMana; // 0..MaxCurMana, since the overflow cap is 2x max
-	int darkLevel = 1 + overflow * (ManaOverflowMaxDarkLevel - 1) / player.MaxCurMana;
-	LimitToRange(darkLevel, 1, ManaOverflowMaxDarkLevel);
-	return darkLevel;
-}
 
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);
 

@@ -699,7 +699,7 @@ void InfoPanel_ClearBody()
 }
 
 //----- (0040458B) -------------------------------------------------------- interface
-int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, int Height, int DstX, int DstY, int darkLevel)
+int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, int Height, int DstX, int DstY)
 {
 	DstX += (ScreenWidth - GUI_Width)/2;
 	DstY += ScreenHeight - GUI_Height;
@@ -709,13 +709,11 @@ int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, 
 	int SrcHeight = 288;  // temporary
 	int DstWidth = WorkingWidth;
 	int DstHeight = ScreenHeight + 192; //1300;
-	uchar* darkPal = darkLevel ? &LightTable[256 * darkLevel] : nullptr; // used to tint the mana globe liquid to show overflow above max
 	for( int y = 0; (y < Height) && (y + SrcY < SrcHeight) && (y + DstY < DstHeight); y++ ){
 		if( y + SrcY >= 0 && y + DstY >= 0 ){
 			for( int x = 0; (x < Width) && (x + SrcX < SrcWidth) && (x + DstX < DstWidth); x++ ){
 				/*if( MainPanelImage[SrcX + x + SrcWidth * (SrcY + y)] != 0 ){*/ // 0 в главной панели означает чёрный, а не прозрачный
-					uchar srcPixel = MainPanelImage[SrcX + x + SrcWidth * (SrcY + y)];
-					WorkingSurface[DstX + x + DstWidth * (DstY + y)] = darkPal ? darkPal[srcPixel] : srcPixel;
+					WorkingSurface[DstX + x + DstWidth * (DstY + y)] = MainPanelImage[SrcX + x + SrcWidth * (SrcY + y)];
 				/*}*/
 			}
 		}
@@ -737,15 +735,14 @@ void __fastcall DrawEmptyGlobeBottom(uchar* aLifeShereImage, int aStartRow, int 
 }
 
 //----- (0040464D) -------------------------------------------------------- interface
-void __fastcall PutWithAlpha(uchar* srcSurface, int srcWidth, int srcOffset, uchar* dstSurface, int dstOffset, int ySize, int darkLevel)
+void __fastcall PutWithAlpha(uchar* srcSurface, int srcWidth, int srcOffset, uchar* dstSurface, int dstOffset, int ySize)
 {
 	uchar* src = srcSurface + srcOffset;
 	uchar* dst = dstSurface + dstOffset + WorkingWidth*(ScreenHeight - GUI_Height) + (ScreenWidth - GUI_Width)/2;
-	uchar* darkPal = darkLevel ? &LightTable[256 * darkLevel] : nullptr; // used to tint the mana globe liquid to show overflow above max
 	for( int y = 0; y < ySize; y++ ){
 		for( int x = 0; x < 59; x++ ){
 			if( *src ){// Если пиксель источника ненулевой рисуем его
-				*dst = darkPal ? darkPal[*src] : *src; //Dragon оригинал вылетает когда кончается фури, DstSurface выходит за границу
+				*dst = *src; //Dragon оригинал вылетает когда кончается фури, DstSurface выходит за границу
 			}
 			src++;
 			dst++;
@@ -832,8 +829,8 @@ void DrawManaGlobeTop()
 	height += 2;
 	PutWithAlpha(ManaShereImage, 88, 277, WorkingSurface, WorkingWidth * 499 + 475 + Screen_LeftBorder, height);
 	if( height != 13 ){
-		int manaDarkLevel = ManaOverflowDarkLevel(player); // darken the liquid to show mana overflowing past max
-		PutWithAlpha(MainPanelImage, GUI_Width, GUI_Width * (height + 3) + 475, WorkingSurface, WorkingWidth * height + WorkingWidth * 499 + 475 + Screen_LeftBorder, 13 - height, manaDarkLevel);
+		// NOTE: overflow tinting intentionally not applied here - see DrawManaGlobeBottom for why.
+		PutWithAlpha(MainPanelImage, GUI_Width, GUI_Width * (height + 3) + 475, WorkingSurface, WorkingWidth * height + WorkingWidth * 499 + 475 + Screen_LeftBorder, 13 - height);
 	}
 }
 
@@ -888,8 +885,12 @@ void DrawManaGlobeBottom()
 		DrawEmptyGlobeBottom(ManaShereImage, 16, 85 - ratioManaGlobe, 464 + Screen_LeftBorder, 512);
 	}
 	if( ratioManaGlobe ){
-		int manaDarkLevel = ManaOverflowDarkLevel(player); // darken the liquid to show mana overflowing past max
-		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe, manaDarkLevel);
+		// NOTE: tried recoloring this liquid rectangle through LightTable to show mana overflow (both a full-rectangle
+		// tint and a bottom-up partial tint) - both produced a visible rectangular artifact against the globe's round
+		// silhouette. This graphic's corner/edge pixels appear to rely on matching their surroundings exactly rather
+		// than carrying real transparency, so recoloring any part of it breaks that illusion. Left undarkened until
+		// there's a reliable way (e.g. a real masked "dark liquid" asset) to tint just the round shape.
+		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe);
 	}
 
 	if (ShowNumbersOnMana) {
