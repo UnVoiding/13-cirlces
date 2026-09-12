@@ -5073,22 +5073,26 @@ int __fastcall PvM_Melee( int playerIndex, uint monsterIndex, bool isSweepAttack
 		
 		player.CurLife += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 0)); LimitToMax(player.CurLife, player.MaxCurLife);
 		player.BaseLife += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 0)); LimitToMax(player.BaseLife, player.MaxBaseLife);
-		player.CurMana += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 1)); LimitToMax(player.CurMana, player.MaxCurMana);
-		player.BaseMana += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 1)); LimitToMax(player.BaseMana, player.MaxBaseMana);
-		
+		// leech shouldn't create new overflow, but shouldn't wipe existing overflow (from potions/mana charges/magi charges) either
+		int bloodThieveryManaCap = ManaCapNoNewOverflow(player.CurMana, player);
+		player.CurMana += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 1)); LimitToMax(player.CurMana, bloodThieveryManaCap);
+		player.BaseMana += 64*(PerkValue(SYNERGY_BLOOD_THIEVERY, playerIndex, 1)); LimitToMax(player.BaseMana, player.MaxBaseMana + (bloodThieveryManaCap - player.MaxCurMana));
+
 		if (player.gameChanger & BIT(GC_9_NIGHT_KIN)) {
 			int NK_flat_life_leech = 64*(1 + PerkValue(PERK_LEECH_LIFE, playerIndex));
 			player.CurLife += NK_flat_life_leech; LimitToMax(player.CurLife, player.MaxCurLife);
 			player.BaseLife += NK_flat_life_leech; LimitToMax(player.BaseLife, player.MaxBaseLife);
+			int manaCap = ManaCapNoNewOverflow(player.CurMana, player);
 			int NK_flat_mana_leech = 64*(1 + PerkValue(PERK_LEECH_MANA, playerIndex));
-			player.CurMana += NK_flat_mana_leech; LimitToMax(player.CurMana, player.MaxCurMana);
-			player.BaseMana += NK_flat_mana_leech; LimitToMax(player.BaseMana, player.MaxBaseMana);
+			player.CurMana += NK_flat_mana_leech; LimitToMax(player.CurMana, manaCap);
+			player.BaseMana += NK_flat_mana_leech; LimitToMax(player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana));
 		}
 		if( player.manaStealPercent ){
+			int manaCap = ManaCapNoNewOverflow(player.CurMana, player);
 			int restoredMp = ( player.manaStealPercent * damage )  * (100 + PerkValue(PERK_VAMPYRISM, playerIndex)) / 10000;
 			LimitToRange( restoredMp, 64 * player.manaStealPercent, ((player.MaxCurMana * player.manaStealPercent) / 20 * (100 + PerkValue(PERK_VAMPYRISM, playerIndex)) / 100));
-			player.CurMana  += restoredMp; LimitToMax( player.CurMana, player.MaxCurMana );
-			player.BaseMana += restoredMp; LimitToMax( player.BaseMana, player.MaxBaseMana );
+			player.CurMana  += restoredMp; LimitToMax( player.CurMana, manaCap );
+			player.BaseMana += restoredMp; LimitToMax( player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana) );
 		}
 		if (!HasTrait(playerIndex, TraitId::Bloodless)) {
 			if( player.effectFlag[EA_LIFE_STEAL_RND] ){
@@ -5111,9 +5115,10 @@ int __fastcall PvM_Melee( int playerIndex, uint monsterIndex, bool isSweepAttack
 				player.BaseLife += leech_hp; LimitToMax(player.BaseLife, player.MaxBaseLife);
 			}
 			if (player.MaxCurMana > 0) {
+				int manaCap = ManaCapNoNewOverflow(player.CurMana, player);
 				int leech_mana = player.MaxCurMana / 100;
-				player.CurMana += leech_mana; LimitToMax(player.CurMana, player.MaxCurMana);
-				player.BaseMana += leech_mana; LimitToMax(player.BaseMana, player.MaxBaseMana);
+				player.CurMana += leech_mana; LimitToMax(player.CurMana, manaCap);
+				player.BaseMana += leech_mana; LimitToMax(player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana));
 			}
 		}
 	}
@@ -6846,7 +6851,8 @@ void __fastcall LimitPlayerParams(int playerIndex)
 	}
 	// this should prevent base and baseMax life mismatches (there was a bug with Scout class having wrong values in the beginning)
 	LimitToMax(player.BaseLife, player.MaxBaseLife);
-	LimitToMax(player.BaseMana, player.MaxBaseMana);
+	// mage archetypes may be sitting above MaxBaseMana while overflowing on mana charges/potions; don't wipe that out every frame
+	LimitToMax(player.BaseMana, player.MaxBaseMana + (ManaOverflowCap(player) - player.MaxCurMana));
 }
 
 //----- (0045DE33) --------------------------------------------------------

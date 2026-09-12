@@ -4675,7 +4675,7 @@ LABEL_73:
 	//player.CurMana += addManaPercents;
 	player.MaxCurMana += addManaPercents + sisyphean_trait_benefit;
 	//LimitToMin(player.MaxCurMana, 64); // doesn't seem  to work !!!
-	LimitToMax( player.CurMana, player.MaxCurMana );
+	LimitToMax( player.CurMana, ManaOverflowCap(player) ); // mage archetypes may be sitting above MaxCurMana on mana charges/potions; don't wipe that out on every stat recalc
 	if (!(player.gameChanger & BIT(GC_21_C_NO_EVIL))) {
 		player.Infravision = player.effectFlag[EA_INFRAVISION];
 	}

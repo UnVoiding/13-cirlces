@@ -2307,6 +2307,8 @@ template<typename... T> __forceinline bool CurTrait(T&&... val){ return has(Play
 __forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_MAGE, PFC_ELEMENTALIST, PFC_DEMONOLOGIST, PFC_NECROMANCER, PFC_BEASTMASTER, PFC_WARLOCK); }
 // mage-archetype classes can be topped up past their max mana (by potions/mana charges/magi charges, not by natural regen) up to 2x max
 __forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
+// for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
+__forceinline int ManaCapNoNewOverflow(int preEffectCurMana, const Player& player){ return (IsMageArchetype(player.fullClassId) && preEffectCurMana > player.MaxCurMana) ? preEffectCurMana : player.MaxCurMana; }
 
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);
 
