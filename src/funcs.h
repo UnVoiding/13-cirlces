@@ -2309,13 +2309,18 @@ __forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_
 __forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
 // for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
 __forceinline int ManaCapNoNewOverflow(int preEffectCurMana, const Player& player){ return (IsMageArchetype(player.fullClassId) && preEffectCurMana > player.MaxCurMana) ? preEffectCurMana : player.MaxCurMana; }
-// fixed darker shade of mana-blue used to show overflow on the globe; a LightTable brightness level (0-15 are the safe generic darkness steps)
-enum { ManaOverflowTintLevel = 6 };
-// how much of the globe (on the same 0-80 scale as the normal fill ratio) the overflow tint should cover, rising from the
-// bottom of the globe as mana climbs from 100% to the 200%-of-max overflow cap; 0 once mana is back at/below max
-__forceinline int ManaOverflowFillRatio(const Player& player){
+// how dark the mana globe's liquid should be tinted to show overflow: 0 = no overflow, up to ManaOverflowMaxDarkLevel at the 200%-of-max overflow cap.
+// This tints the whole liquid graphic at once (matching the exact rectangle a normal, non-overflowing fill would use) rather than
+// splitting it into two differently-colored regions: the liquid art has no per-pixel mask data to know which pixels are actually
+// "wet" versus edge/background filler, so recoloring only part of it (e.g. a rising band from the bottom) exposes that filler as
+// a visible rectangular patch instead of following the globe's round silhouette.
+enum { ManaOverflowMaxDarkLevel = 9 }; // LightTable brightness levels 0-15 are safe generic darkness steps; keep well clear of the special palettes above that
+__forceinline int ManaOverflowDarkLevel(const Player& player){
 	if( !IsMageArchetype(player.fullClassId) || player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
-	return ftol( double(player.CurMana - player.MaxCurMana) / double(player.MaxCurMana) * 80.0 );
+	int overflow = player.CurMana - player.MaxCurMana; // 0..MaxCurMana, since the overflow cap is 2x max
+	int darkLevel = 1 + overflow * (ManaOverflowMaxDarkLevel - 1) / player.MaxCurMana;
+	LimitToRange(darkLevel, 1, ManaOverflowMaxDarkLevel);
+	return darkLevel;
 }
 
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);
