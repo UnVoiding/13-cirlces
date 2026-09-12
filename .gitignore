@@ -8,8 +8,10 @@ personal.props
 .vs
 .vscode
 .idea
+*.obj
 cmake-build-*/
 Cheats/
 /src/thehell3.rc
 .claude
 CLAUDE.md
+tools/__pycache__/

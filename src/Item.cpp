@@ -139,19 +139,18 @@ bool UseFullManaPotion(int playerIndex)
 	Player& player = Players[playerIndex];
 	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana, up to 2x max
 	if( player.CurMana < manaCap ){
+		// a full potion restores one full mana bar - for a mage that can carry mana into the overflow,
+		// but it never tops him straight up to the overflow cap
+		int manaAdd = player.MaxCurMana;
+		int baseManaAdd = player.MaxBaseMana;
 		if (HasTrait(playerIndex, TraitId::Giant)) {
-			int manaAdd = player.MaxCurMana / 2;
-			player.CurMana += manaAdd;
-			player.BaseMana += manaAdd;
-			if (player.CurMana > manaCap) {
-				player.CurMana = manaCap;
-				player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
-			}
+			manaAdd /= 2;
+			baseManaAdd /= 2;
 		}
-		else {
-			player.CurMana = manaCap;
-			player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
-		}
+		player.CurMana += manaAdd;
+		player.BaseMana += baseManaAdd;
+		LimitToMax( player.CurMana, manaCap );
+		LimitToMax( player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana) );
         return true;
     }else{
         return false;

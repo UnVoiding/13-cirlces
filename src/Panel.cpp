@@ -721,20 +721,46 @@ int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, 
 	return result;
 }
 
-// paints a flat rectangle of one solid color onto the working surface, using the same coordinate
-// convention as CopyFromMainPanelToWorkingSurface - used to show mana overflow as a solid darker
-// fill rising from the bottom of the globe (no source art / transparency involved)
-void __fastcall FillWorkingSurfaceSolid(int DstX, int DstY, int Width, int Height, uchar colorIndex)
+// Prepares the darker "second filling" of the mana globe. A mage can hold more mana than his
+// maximum, and everything above max fills the globe a second time in a darker tone - the very same
+// globe artwork, just recolored through X\other\ManaOvfl.trn (13cirlces.MPQ).
+// A pixel belongs to the liquid exactly where the full globe on the main panel differs from the
+// empty globe bulb graphic; every other pixel is left 0, which DrawManaOverflowGlobe treats as
+// transparent. That mask is what matters: simply recoloring the whole globe rectangle would repaint
+// the piece of panel around the round globe as well and show up as a dark square.
+void BuildManaOverflowGlobe()
 {
+	if( !ManaOverflowGlobeImage ) return;
+	memset(ManaOverflowGlobeImage, 0, ManaGlobeImageSize);
+	for( int y = 0; y < ManaGlobeHeight; y++ ){
+		for( int x = 0; x < ManaGlobeWidth; x++ ){
+			uchar liquid = MainPanelImage[ManaGlobeLeft + x + GUI_Width * y];
+			if( liquid && liquid != ManaShereImage[ManaGlobeWidth * y + x] ){
+				ManaOverflowGlobeImage[ManaGlobeWidth * y + x] = ManaOverflowColors[liquid];
+			}
+		}
+	}
+}
+
+// Draws a piece of the darker overflow liquid onto the working surface, skipping everything that
+// is not liquid. Source coordinates are inside the 88x88 globe image (which is aligned with the
+// globe area of the main panel), destination coordinates follow the same convention as
+// CopyFromMainPanelToWorkingSurface.
+void __fastcall DrawManaOverflowGlobe(int SrcX, int SrcY, int Width, int Height, int DstX, int DstY)
+{
+	if( !ManaOverflowGlobeImage ) return;
 	DstX += (ScreenWidth - GUI_Width)/2;
 	DstY += ScreenHeight - GUI_Height;
 
 	int DstWidth = WorkingWidth;
 	int DstHeight = ScreenHeight + 192;
-	for( int y = 0; (y < Height) && (y + DstY < DstHeight); y++ ){
-		if( y + DstY >= 0 ){
-			for( int x = 0; (x < Width) && (x + DstX < DstWidth); x++ ){
-				WorkingSurface[DstX + x + DstWidth * (DstY + y)] = colorIndex;
+	for( int y = 0; (y < Height) && (y + SrcY < ManaGlobeHeight) && (y + DstY < DstHeight); y++ ){
+		if( y + SrcY >= 0 && y + DstY >= 0 ){
+			for( int x = 0; (x < Width) && (x + SrcX < ManaGlobeWidth) && (x + DstX < DstWidth); x++ ){
+				uchar pixel = ManaOverflowGlobeImage[SrcX + x + ManaGlobeWidth * (SrcY + y)];
+				if( pixel ){
+					WorkingSurface[DstX + x + DstWidth * (DstY + y)] = pixel;
+				}
 			}
 		}
 	}
@@ -848,8 +874,16 @@ void DrawManaGlobeTop()
 	height += 2;
 	PutWithAlpha(ManaShereImage, 88, 277, WorkingSurface, WorkingWidth * 499 + 475 + Screen_LeftBorder, height);
 	if( height != 13 ){
-		// NOTE: overflow tinting intentionally not applied here - see DrawManaGlobeBottom for why.
 		PutWithAlpha(MainPanelImage, GUI_Width, GUI_Width * (height + 3) + 475, WorkingSurface, WorkingWidth * height + WorkingWidth * 499 + 475 + Screen_LeftBorder, 13 - height);
+	}
+	// mana above max fills the globe a second time in a darker tone; the bottom part of that filling is
+	// painted by DrawManaGlobeBottom, only what rises above it reaches this top piece of the globe
+	int overflowRatio = ManaOverflowFillRatio(player);
+	LimitToMax(overflowRatio, 80);
+	if( overflowRatio > 69 ){
+		int overflowHeight = 80 - overflowRatio;
+		overflowHeight += 2;
+		DrawManaOverflowGlobe(475 - ManaGlobeLeft, overflowHeight + 3, 59, 13 - overflowHeight, 475 + Screen_LeftBorder, 499 + overflowHeight);
 	}
 }
 
@@ -906,13 +940,11 @@ void DrawManaGlobeBottom()
 	if( ratioManaGlobe ){
 		CopyFromMainPanelToWorkingSurface(464, 85 - ratioManaGlobe, 88, ratioManaGlobe, 464 + Screen_LeftBorder, 581 - ratioManaGlobe);
 	}
-	// mana above max: paint a flat darker fill rising from the bottom of the globe, on top of the normal liquid above
-	int manaOverflowRatio = ManaOverflowFillRatio(player);
-	LimitToMax(manaOverflowRatio, 69);
-	if( manaOverflowRatio ){
-		uchar manaLiquidSample = MainPanelImage[464 + 44 + GUI_Width * 80]; // a pixel deep in the liquid body
-		uchar manaOverflowColor = LightTable[256 * ManaOverflowTintLevel + manaLiquidSample];
-		FillWorkingSurfaceSolid(464 + Screen_LeftBorder, 581 - manaOverflowRatio, 88, manaOverflowRatio, manaOverflowColor);
+	// mana above max fills the globe a second time, in the darker tone, rising from the bottom again
+	int overflowRatio = ManaOverflowFillRatio(player);
+	LimitToMax(overflowRatio, 69);
+	if( overflowRatio ){
+		DrawManaOverflowGlobe(0, 85 - overflowRatio, ManaGlobeWidth, overflowRatio, ManaGlobeLeft + Screen_LeftBorder, 581 - overflowRatio);
 	}
 
 	if (ShowNumbersOnMana) {
@@ -942,10 +974,12 @@ void MayBeViewInit()
 	}
 	MainPanelImage = (uchar*) AllocMem( mainPanelSize );
 	memset( MainPanelImage, 0, mainPanelSize );
-	ManaShereImage = (uchar*)AllocMem(7744); // 88 * 88
-	memset( ManaShereImage, 0, 7744);
+	ManaShereImage = (uchar*)AllocMem(ManaGlobeImageSize); // 88 * 88
+	memset( ManaShereImage, 0, ManaGlobeImageSize);
 	LifeShereImage = (uchar*)AllocMem(7744); // 88 * 88
 	memset( LifeShereImage, 0, 7744);
+	ManaOverflowGlobeImage = (uchar*)AllocMem(ManaGlobeImageSize); // darker second filling of the mana globe
+	memset( ManaOverflowGlobeImage, 0, ManaGlobeImageSize);
 	FontSpriteSmall = (char*)LoadFile("CtrlPan\\SmalText.CEL");
 	Monster_Bar_Border = (char*)LoadFile("data\\monsterbar\\status_bar_border.CEL");
 	char* monsterBarTRNname[3] = { "base.trn", "blue.trn", "gray.trn" };
@@ -983,6 +1017,15 @@ void MayBeViewInit()
 	ParseCELFile(LifeShereImage, 0, 87, 88, currentCELFilePtr, 1, 88);
 	ParseCELFile(ManaShereImage, 0, 87, 88, currentCELFilePtr, 2, 88);
 	FreeMemZero(currentCELFilePtr);
+	// darker tone of the mana globe, used for mana above max (13cirlces.MPQ). Without the archive the
+	// table stays an identity one and the second filling simply looks like the normal liquid.
+	HANDLE manaOverflowTrn;
+	for( int i = 0; i < 256; i++ ) ManaOverflowColors[i] = (uchar)i;
+	if( File_Open("X\\other\\ManaOvfl.trn", &manaOverflowTrn, ONE_TRY) ){
+		File_Read(manaOverflowTrn, ManaOverflowColors, 256);
+		File_Close(manaOverflowTrn);
+	}
+	BuildManaOverflowGlobe();
 	TalkPanelMode = 0;
 	if( MaxCountOfPlayersInGame != 1 ){ // загружаем второй образ панели, блокировка талк панели для сингла
 		currentCELFilePtr = (char*)LoadFile("CtrlPan\\TalkPanl.CEL");
@@ -1535,6 +1578,7 @@ void FreePanels()
 {
 	///////////// MainPanel
 	FreeMemZero(ManaShereImage);
+	FreeMemZero(ManaOverflowGlobeImage);
 	FreeMemZero(LifeShereImage);
 	FreeMemZero(MainPanelImage);
 	FreePanelButtons();

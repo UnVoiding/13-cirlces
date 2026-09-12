@@ -74,10 +74,41 @@ Copy these files into your `GameFolder` to run the game:
 config.ini
 diabdat.mpq
 TH2data.mor
+13cirlces.MPQ
 THmusic.mor   (optional)
 ```
 
 Then launch `TH4.exe` directly or via the VS debugger.
+
+---
+
+## 13cirlces.MPQ — the mod's own interface assets
+
+`13cirlces.MPQ` holds graphics assets authored for the mod itself (currently
+`X\other\ManaOvfl.trn`, the darker tone the mana globe is filled with a second time when a
+mage's mana goes above his maximum). The game opens it next to `diabdat.mpq`, at a higher
+priority than every other archive, so anything in it wins over the stock data. The game
+still runs without it — features that need one of its assets just fall back to their plain
+look.
+
+The loose source files live under `res\13cirlces\`, laid out exactly as they sit inside the
+archive. To repack it after changing one of them:
+
+```
+python tools\make_mpq.py res\13cirlces <GameFolder>\13cirlces.MPQ
+```
+
+`X\other\ManaOvfl.trn` itself is generated from a game palette (any level palette will do -
+entries 128..255, the only ones the panel graphics use, are the same in all of them):
+
+```
+tools\build_mpq_tools.bat
+tools\mpq_extract.exe <GameFolder>\TH4data.mor . Levels\TownData\Town.pal
+python tools\make_mana_overflow_trn.py Town.pal res\13cirlces\X\other\ManaOvfl.trn
+```
+
+Passing `make_mana_overflow_trn.py` an output directory and one or more panel `.cel` files
+after that additionally renders PNG previews of how the darker filling will look.
 
 ---
 

@@ -5576,9 +5576,13 @@ void __fastcall CastMagi( int missileIndex, int casterRow, int casterCol, int ta
 {
 	Missile& missile = Missiles[missileIndex];
 	Player& player = Players[casterIndex];
-	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana via magi charges, up to 2x max
-	player.CurMana = manaCap;
-	player.BaseMana = player.MaxBaseMana + (manaCap - player.MaxCurMana);
+	// the Magi spell restores one full mana bar - for a mage that can carry mana into the overflow,
+	// but it never tops him straight up to the overflow cap
+	int manaCap = ManaOverflowCap(player);
+	player.CurMana += player.MaxCurMana;
+	LimitToMax(player.CurMana, manaCap);
+	player.BaseMana += player.MaxBaseMana;
+	LimitToMax(player.BaseMana, player.MaxBaseMana + (manaCap - player.MaxCurMana));
 	MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_38_MAGI);
 	missile.IsDeleted = true;
 }

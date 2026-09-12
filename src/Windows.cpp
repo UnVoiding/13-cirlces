@@ -53,6 +53,10 @@ void __fastcall CloseGameArchives(bool exitGame)
 		SFileCloseArchive(thehell2MPQPtr);
 		thehell2MPQPtr = NULL;
 	}
+	if( circlesMPQPtr ){ // 13cirlces.MPQ
+		SFileCloseArchive(circlesMPQPtr);
+		circlesMPQPtr = NULL;
+	}
 	if (th2devMPQPtr) { // dev mpq
 		SFileCloseArchive(th2devMPQPtr);
 		th2devMPQPtr = NULL;
@@ -302,6 +306,7 @@ void OpenGameArchives()
 	hellgfxMPQPtr	= OpenMPQ( MpqPath_7, "\\TH4data.mor",	InstallKey, 8500, 0 );
 	hellmfMPQPtr	= OpenMPQ( MpqPath_8, "\\THmusic.mor",	InstallKey, 8600, 0 );
 	th2devMPQPtr	= OpenMPQ( MpqPath_dev, "\\th2dev.mpq",	InstallKey, 8700, 0 );  // dev mpq
+	circlesMPQPtr	= OpenMPQ( MpqPath_circles, "\\13cirlces.MPQ", InstallKey, 8800, 0 ); // mod's own interface assets
 }
 
 // потом в storm.dll перебираются все открытые mpq каждый раз по очереди

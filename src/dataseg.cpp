@@ -2437,6 +2437,7 @@ HANDLE thassaMORPtr;
 HANDLE thgladMPQPtr;
 HANDLE thehell2MPQPtr;
 HANDLE th2devMPQPtr;
+HANDLE circlesMPQPtr; // 13cirlces.MPQ - the mod's own interface assets
 
 int AnimSizeCounted;
 int AnimSizeStay;
@@ -2461,6 +2462,7 @@ char MpqPath_7[MAX_PATH];
 char MpqPath_9[MAX_PATH];
 char MpqPath_8[MAX_PATH];
 char MpqPath_dev[MAX_PATH];
+char MpqPath_circles[MAX_PATH];
 char MpqPath_Main[MAX_PATH];
 char MpqPath_TH2[MAX_PATH];
 char InstallKey[] = "DiabloInstall"; // 004A0AF0
@@ -2713,6 +2715,7 @@ uchar* MainPanelImage; // декодированные (чистые пиксе�
 char* CtrlPan_TalkButtCEL; // не декодированные CEL данные имеют тип char*
 uchar* LifeShereImage; // декодированный (uchar*)
 uchar* ManaShereImage; // декодированный (uchar*)
+uchar* ManaOverflowGlobeImage; // 88x88, darker copy of the mana liquid only, 0 = not liquid (see BuildManaOverflowGlobe)
 Item UniqueInfo;
 uchar IconColors[256];
 uchar IconColorsDisabled[256];
@@ -2721,6 +2724,7 @@ uchar IconColorsRelict[256];
 uchar IconColorsSkill[256];
 uchar IconColorsCharges[256];
 uchar IconColorsTrait[256];
+uchar ManaOverflowColors[256]; // X\other\ManaOvfl.trn - darker tone used for the mana overflow filling
 char SelectedSpellType;
 uchar MonsterBarIconColors[6][256];
 uchar MonsterBarBorderColors[3][256];

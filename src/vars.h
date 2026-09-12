@@ -561,7 +561,8 @@ extern int InfoPanelLinesUsed;//
 extern int InfoPanelUsed;//	
 extern int TalkPanelButtonState[3];//	
 extern char SelectedSpellIndex;//	
-extern uchar* ManaShereImage;//	
+extern uchar* ManaShereImage;//
+extern uchar* ManaOverflowGlobeImage;// 88x88 darker mana liquid, 0 = not liquid
 extern char CurFontColor;//	начало блока
 extern int MainPanelSelector;//	
 extern char* CtrlPan_GolddropCEL;//	
@@ -587,7 +588,8 @@ extern uchar IconColorsSpell[256];//
 extern uchar IconColorsRelict[256];// 
 extern uchar IconColorsSkill[256];// 
 extern uchar IconColorsCharges[256];// 
-extern uchar IconColorsTrait[256];// 
+extern uchar IconColorsTrait[256];//
+extern uchar ManaOverflowColors[256];// X\other\ManaOvfl.trn
 extern uchar MonsterBarIconColors[6][256]; // DrawMonsterStatusBar
 extern uchar MonsterBarBorderColors[3][256]; // DrawMonsterStatusBar
 extern int GoldYouHave;//	
@@ -858,7 +860,9 @@ extern HANDLE helldataMPQPtr;//
 extern HANDLE thassaMORPtr;//	
 extern HANDLE thgladMPQPtr;//
 extern char MpqPath_dev[MAX_PATH]; // dev mpq	
-extern HANDLE th2devMPQPtr;//	
+extern HANDLE th2devMPQPtr;//
+extern char MpqPath_circles[MAX_PATH]; // 13cirlces.MPQ
+extern HANDLE circlesMPQPtr;// 13cirlces.MPQ - the mod's own interface assets
 extern int MOMParentFound;//	
 extern char SomeBoolFlag_38;//	
 extern char* LoadingScreenCEL;//	
