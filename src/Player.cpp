@@ -2285,8 +2285,10 @@ void __fastcall NextPlayerLevel(int playerIndex)
 	#ifdef OLD_CODE
 	if( ! player.effectFlag[EA_LOSE_REGENERATION] )
 	#endif
-	player.CurMana = player.MaxCurMana;
-	player.BaseMana = player.MaxBaseMana;
+	if( player.CurMana < player.MaxCurMana ){ // don't clobber mage mana overflow (from potions/mana charges/magi charges) on level-up
+		player.CurMana = player.MaxCurMana;
+		player.BaseMana = player.MaxBaseMana;
+	}
 	if( playerIndex == CurrentPlayerIndex ){
 		PlayGlobalSound( S_1022_LEVELUP );
 	}
