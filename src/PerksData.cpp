@@ -803,17 +803,17 @@ Perk Perks[PERKS_COUNT] = {
 		/* 9*/ { 29, IPCM_ALL_CLASSES, {}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 55 },
 	} },
 
-	{ PERK_HEAVY_DRINKER, {"    Gives %i%% chance::to get a random elixir::from unique monsters"}, "Heavy Drinker", {// ok, more than enough!
+	{ PERK_HEAVY_DRINKER, {"    Gives %i%% chance::to get a random elixir::from unique monsters"}, "Heavy Drinker", {
 		/* 0*/ {  6, IPCM_ALL_CLASSES, {PERK_OBSESSION, 1 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  3 },
 		/* 1*/ {  8, IPCM_ALL_CLASSES, {PERK_OBSESSION, 2 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  5 },
 		/* 2*/ { 10, IPCM_ALL_CLASSES, {PERK_OBSESSION, 3 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  7 },
 		/* 3*/ { 12, IPCM_ALL_CLASSES, {PERK_OBSESSION, 4 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  9 },
-		/* 4*/ { 14, IPCM_ALL_CLASSES, {PERK_OBSESSION, 5 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 10 },
-		/* 5*/ { 16, IPCM_ALL_CLASSES, {PERK_OBSESSION, 6 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 11 },
-		/* 6*/ { 18, IPCM_ALL_CLASSES, {PERK_OBSESSION, 7 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 12 },
-		/* 7*/ { 20, IPCM_ALL_CLASSES, {PERK_OBSESSION, 8 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 13 },
-		/* 8*/ { 22, IPCM_ALL_CLASSES, {PERK_OBSESSION, 9 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 14 },
-		/* 9*/ { 24, IPCM_ALL_CLASSES, {PERK_OBSESSION,10 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 15 },
+		/* 4*/ { 14, IPCM_ALL_CLASSES, {PERK_OBSESSION, 5 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 12 },
+		/* 5*/ { 16, IPCM_ALL_CLASSES, {PERK_OBSESSION, 6 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 14 },
+		/* 6*/ { 18, IPCM_ALL_CLASSES, {PERK_OBSESSION, 7 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 15 },
+		/* 7*/ { 20, IPCM_ALL_CLASSES, {PERK_OBSESSION, 8 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 17 },
+		/* 8*/ { 22, IPCM_ALL_CLASSES, {PERK_OBSESSION, 9 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 19 },
+		/* 9*/ { 24, IPCM_ALL_CLASSES, {PERK_OBSESSION,10 }/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 20 },
 	} },
 
 	{ PERK_OVERDRAW, {"    +%i points to damage::with ranged weapons"}, "Overdraw", {// upgraded to clvl 150 limit
