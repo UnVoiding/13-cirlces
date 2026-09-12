@@ -2726,8 +2726,8 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 
 	bool isMageArchetype = IsMageArchetype(player.fullClassId);
 	if (isMageArchetype && player.CurMana > player.MaxCurMana) {
-		// mana above max (from potions/mana charges/magi charges) decays back toward max at a flat 1% of max mana per second
-		int manaOverflowDecayPerTick = player.MaxCurMana / (100 * ENGINE_FPS);
+		// mana above max (from potions/mana charges/magi charges) decays back toward max at a flat 2% of max mana per second
+		int manaOverflowDecayPerTick = player.MaxCurMana * 2 / (100 * ENGINE_FPS);
 		LimitToMax(manaOverflowDecayPerTick, player.CurMana - player.MaxCurMana); // don't decay past max in one tick
 		manaAdd -= manaOverflowDecayPerTick;
 	}
