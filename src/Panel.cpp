@@ -818,6 +818,7 @@ void DrawManaGlobeTop()
 	// но если это блок убрать, то манасфера отрисовывается без верха, а в TH 1 нормально, концов пока не нашел
 	if( player.MaxCurMana > 0 ){
 		player.RatioManaGlobe = ftol(double(player.CurMana) / double(player.MaxCurMana) * 80.0 );
+		LimitToMax(player.RatioManaGlobe, 80); // mages can overflow past max mana; the globe just renders full
 	}else{
 		player.RatioManaGlobe = 0;
 	}
@@ -846,6 +847,7 @@ void RecalcLifeManaGlobes()
 	}
 	if( maxCurMana ){
 		player.RatioManaGlobe = ftol ((double) curMana / (double) maxCurMana * 80.0);
+		LimitToMax(player.RatioManaGlobe, 80); // mages can overflow past max mana; the globe just renders full
 	}else{
 		player.RatioManaGlobe = 0;
 	}

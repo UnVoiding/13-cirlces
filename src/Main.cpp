@@ -2724,6 +2724,12 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 		}
 	}
 
+	bool isMageArchetype = is(player.fullClassId, PFC_MAGE, PFC_ELEMENTALIST, PFC_DEMONOLOGIST, PFC_NECROMANCER, PFC_BEASTMASTER, PFC_WARLOCK);
+	int manaOverflowCap = isMageArchetype ? player.MaxCurMana * 2 : player.MaxCurMana; // mages can regen mana past their max, up to 2x max
+	if (isMageArchetype && player.CurMana > player.MaxCurMana) {
+		manaAdd -= (player.CurMana - player.MaxCurMana) * 2 / 100; // regen decays the higher above max mana currently sits
+	}
+
 	if( player.CurMana <= 0 && manaAdd <= 0 ){
 		manaAdd = 0;
 	}
@@ -2734,9 +2740,9 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 			ManaRegen = manaAdd;
 		}
 	}
-	if( player.CurMana > player.MaxCurMana ){
-		player.CurMana = player.MaxCurMana;
-		player.BaseMana = player.MaxBaseMana;
+	if( player.CurMana > manaOverflowCap ){
+		player.CurMana = manaOverflowCap;
+		player.BaseMana = player.MaxBaseMana + player.CurMana - player.MaxCurMana;
 	}
 	// Fix ManaShied above zero life invulnerability hack
 	if( player.CurLife < 64 ) for( int spellIndexIndex = 0; spellIndexIndex < MissileAmount; spellIndexIndex++ ){
