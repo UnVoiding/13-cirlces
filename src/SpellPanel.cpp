@@ -762,9 +762,9 @@ void DrawSpellBook()
 		else if (spellIndex == PS_16_REFLECT) {
 			sprintf(InfoPanelBuffer, "gives invulnerability");
 			drawLine(InfoPanelBuffer);
-			sprintf(InfoPanelBuffer, "to monster melee attacks");
+			sprintf(InfoPanelBuffer, "to monster melee attacks,");
 			drawLine(InfoPanelBuffer);
-			sprintf(InfoPanelBuffer, " ");
+			sprintf(InfoPanelBuffer, "their stun and knockback");
 			drawLine(InfoPanelBuffer);
 		}
 		else if (spellIndex == PS_23_TELEPORT) {
@@ -1189,11 +1189,7 @@ void DrawSpellBook()
             sprintf( InfoPanelBuffer, "Damage Received: %i%%", minDamage );
             drawLine( InfoPanelBuffer );
         }else if (spellIndex == PS_16_REFLECT) {
-			int reflect_layers = player.BaseVitality / 50 + 1; // that's basic level of Reflect layers
-			if (HasTrait(CurrentPlayerIndex, TraitId::Armadillo)) {
-				reflect_layers += player.CharLevel / 13 + 2;
-			}
-			reflect_layers += PerkValue(SYNERGY_IRON_BULWARK, CurrentPlayerIndex);
+			int reflect_layers = ReflectInstancesOfCast(CurrentPlayerIndex, PlayerSpellLevel(CurrentPlayerIndex, PS_16_REFLECT));
 			if( reflect_layers == 1 ){
                 drawLine( "Absorbs 1 hit" );
             }else{

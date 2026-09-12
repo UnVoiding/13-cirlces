@@ -9,6 +9,7 @@ personal.props
 .vscode
 .idea
 *.obj
+*.exe
 cmake-build-*/
 Cheats/
 /src/thehell3.rc

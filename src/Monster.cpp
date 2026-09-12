@@ -6038,8 +6038,12 @@ void __fastcall MvP_Melee(int monsterIndex, int playerIndex, int toHit, int minD
 		// отнятие макс жизни желтым зомби убрал нафиг
 
 		int baseMonsterIndex = monster.SpritePtr->baseMonsterIndex;
+		// Reflect makes the player immune to melee stun, melee knockback and to life/mana leeching by the attacker.
+		// Read here, before any charge is spent below, so that the hit which consumes the last charge is still protected.
+		// Exploder blasts are missiles (MI_140_EXPLODER), not melee, so they keep stunning and knocking the player around.
+		bool reflectActive = player.CountOfReflectCharges > 0;
 		// 0070B600
-		if( DoesMonsterStealMana (baseMonsterIndex,playerIndex) ){
+		if( !reflectActive && DoesMonsterStealMana (baseMonsterIndex,playerIndex) ){
 			// 0043E3C3
 			if( playerIndex == CurrentPlayerIndex ){
 				#ifdef comment
@@ -6202,7 +6206,9 @@ void __fastcall MvP_Melee(int monsterIndex, int playerIndex, int toHit, int minD
 			player.BaseLife -= realDamageToPlayer;
 		}
 		// 0043E596
-		MonsterLifeSteal(realDamageToPlayer, monsterIndex, playerIndex); // в 1.145 перемещено 0070B550 и переделано
+		if( !reflectActive ){
+			MonsterLifeSteal(realDamageToPlayer, monsterIndex, playerIndex); // в 1.145 перемещено 0070B550 и переделано
+		}
 		// неясна эта фигня. Игрока ведь ударили, как у него могут быть текущие жизни больше максимальных?
 		// 0043E5FF
 		if( player.CurLife > player.MaxCurLife ){ // here was the bug with the curLife checking in case of Players[0].CurLife negative value
@@ -6211,8 +6217,8 @@ void __fastcall MvP_Melee(int monsterIndex, int playerIndex, int toHit, int minD
 		}
 		player.lastAttacker = 1 + PlayersMax_4 + monsterIndex;
 		if( (player.CurLife & ~63) > 0 || ! TryToDie(playerIndex, 0) ){ /*fix to Reflect*/
-			StartPlayerHit(playerIndex, realDamageToPlayer, 0);
-			if( PlayerKnockbackResistFail (monsterIndex, playerIndex)  ){
+			StartPlayerHit(playerIndex, realDamageToPlayer, 0, reflectActive);
+			if( !reflectActive && PlayerKnockbackResistFail (monsterIndex, playerIndex)  ){
 				if( player.CurAction != PCA_7_GOT_HIT ){
 					StartPlayerHit(playerIndex, 0, 1);
 				}
@@ -11734,6 +11740,8 @@ void __fastcall ChargeAttackImpact(uint castIndex, int castRow, int castCol)
 		int c_accuracy = 100 + Difficulty * 150 + Dungeon->level * 8;
 		int min_dmg = monster.SecondMinDamage + Difficulty * 24 + Dungeon->level / 2;
 		int max_dmg = monster.SecondMaxDamage + Difficulty * 24 + Dungeon->level;
+		// Reflect blocks stun and knockback of the charge attack too, latched before MvP_Melee may spend the last charge
+		bool reflectActive = Players[playerIndex].CountOfReflectCharges > 0;
 		MvP_Melee(monsterIndex, playerNum - 1, c_accuracy, min_dmg, max_dmg);
 		if( playerIndex != PlayerMap[ spellCast.Row ][ spellCast.Col ] - 1 ){ // проверка что игрок не отброшен (?)
 			return;
@@ -11743,9 +11751,9 @@ void __fastcall ChargeAttackImpact(uint castIndex, int castRow, int castCol)
 		}
 		Player& player = Players[playerIndex]; 
 		if (player.CurAction != PCA_7_GOT_HIT && player.CurAction != PCA_8_DEATH) {
-			StartPlayerHit(playerIndex, 0, 0);
+			StartPlayerHit(playerIndex, 0, 0, reflectActive);
 		}
-		if (PlayerKnockbackResistFail(monsterIndex, playerIndex, true)) {
+		if (!reflectActive && PlayerKnockbackResistFail(monsterIndex, playerIndex, true)) {
 			StartPlayerHit(playerIndex, 0, 1);
 			int deltaRow = spellCast.Row + RowDelta[monster.Orientation];
 			int deltaCol = spellCast.Col + ColDelta[monster.Orientation];

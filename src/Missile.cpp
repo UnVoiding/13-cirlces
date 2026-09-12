@@ -2961,19 +2961,47 @@ void __fastcall CastRuneOfStone(int missileIndex, int casterRow, int casterCol, 
 	}
 }
 
+// Amount of Reflect instances a cast of the given spell level grants
+//----- (th4) -------------------------------------------------------------
+int ReflectInstancesOfCast(int casterIndex, int spellLevel)
+{
+	Player& player = Players[casterIndex];
+	if( !spellLevel ){
+		spellLevel = 2;// C реликта при незнании заклинания уровень считается 2м
+	}
+	int armadillo_trait_benefit = HasTrait(casterIndex, TraitId::Armadillo) ? (player.CharLevel / 13 + 2) : 0;
+	int spell_level_benefit = spellLevel / 10; // one extra Reflect instance per 10 spell levels
+	return 1 + (player.BaseVitality / 50) + armadillo_trait_benefit + spell_level_benefit + PerkValue(SYNERGY_IRON_BULWARK, casterIndex);
+}
+
+// Recasting Reflect while it is up refills the instances to what the new cast is worth.
+// A cast that cannot beat what the player already has does nothing at all: no instances, no mana/charge/relic spent, no cooldown started.
+//----- (th4) -------------------------------------------------------------
+void RefreshReflect(int casterIndex, int spellLevel)
+{
+	Player& player = Players[casterIndex];
+	int instances = ReflectInstancesOfCast(casterIndex, spellLevel);
+	if( player.CountOfReflectCharges >= instances ){
+		return;
+	}
+	player.CountOfReflectCharges = instances;
+	if( BaseMissiles[MI_79_REFLECT].CastSound != S_M1_NO_SOUND ){ // the sound a fresh Reflect cast plays when the icon goes up, CastMissile never reaches it on a refresh
+		PlayLocalSound(BaseMissiles[MI_79_REFLECT].CastSound, player.Row, player.Col);
+	}
+	MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_16_REFLECT);
+}
+
 //----- (0043033E) --------------------------------------------------------
 void __fastcall CastReflect(int missileIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage)
 {
 	Missile& missile = Missiles[missileIndex];
 	Player& player = Players[casterIndex];
-	
+
 	if( casterIndex >= 0 ){
-		int spellLevel = missile.SpellLevel;
-		if( !spellLevel ){
-			spellLevel = 2;// C реликта при незнании заклинания уровень считается 2м
-		}
-		int armadillo_trait_benefit = HasTrait(casterIndex, TraitId::Armadillo) ? (player.CharLevel / 13 + 2) : 0;
-		player.CountOfReflectCharges += 1 + (player.BaseVitality / 50) + armadillo_trait_benefit + PerkValue(SYNERGY_IRON_BULWARK, casterIndex);
+		// no Reflect missile of this caster was alive (CastMissile refreshes instead of casting a second one), so the instances start from scratch here
+		int instances = ReflectInstancesOfCast(casterIndex, missile.SpellLevel);
+		LimitToMin(instances, (int)player.CountOfReflectCharges);
+		player.CountOfReflectCharges = instances;
 		MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_16_REFLECT);
 	}
 	// 0043038E
@@ -6517,7 +6545,12 @@ int __fastcall CastMissile(int casterRow, int casterCol, int targetRow, int targ
 	if( is(baseMissileIndex, MI_39_INFRAVISION, MI_13_MANA_SHIELD, MI_79_REFLECT, MI_34_ETHEREAL) ){
 		for( int missileIndexIndex = 0; missileIndexIndex < MissileAmount; missileIndexIndex++ ){
 			Missile& missile = Missiles[MissileIndexes[missileIndexIndex]];
-			if( missile.BaseMissileIndex == baseMissileIndex && missile.CasterIndex == casterIndex ) return -1;
+			if( missile.BaseMissileIndex == baseMissileIndex && missile.CasterIndex == casterIndex ){
+				if( baseMissileIndex == MI_79_REFLECT && casterType == CT_0_PLAYER && casterIndex >= 0 ){
+					RefreshReflect(casterIndex, spellLevel);// the icon above the player stays the same one, only the instances behind it are topped up
+				}
+				return -1;
+			}
 		}
 	}
 	int missileIndex = MissileIndexList[0];

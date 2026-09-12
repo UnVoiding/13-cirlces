@@ -608,6 +608,26 @@ void DrawCombatTextAbovePlayer()
 	}
 }
 
+//----- (th4) ------------------------------------------------------------
+// Writes how many Reflect instances are left onto the Reflect icon floating around the player.
+// Only the local player is drawn: other clients never decrement their copy of a remote player's instances, so their count would be stale.
+void DrawReflectInstancesCount()
+{
+	const Player& player = Players[CurrentPlayerIndex];
+	if( player.CountOfReflectCharges <= 0 ) return;
+
+	constexpr int IconHeightOffset = 116; // lifts the number off the player's feet, clear of his head, onto the top of the Reflect bubble
+	constexpr int IconLeftOffset = 1; // the Reflect sprite hangs slightly left of the player's tile, so the number follows it
+
+	char buffer[16];
+	sprintf(buffer, "%i", (int)player.CountOfReflectCharges);
+	int x = Xofs - Screen_LeftBorder - GetTextWidth(buffer) / 2 - IconLeftOffset; // Xofs,Yofs is the player's own spot on screen
+	int y = Yofs - Screen_TopBorder - IconHeightOffset;
+	if( x > 0 && x < ScreenWidth && y > 0 && y < ScreenHeight ){
+		DrawLevelInfoText(x, y, buffer, C_3_Gold, OnScreenTextOutline);
+	}
+}
+
 //----- (th2) ------------------------------------------------------------
 void DrawFloatingHealthAndMana() {
 	Player& player = Players[CurrentPlayerIndex];
@@ -3407,7 +3427,7 @@ char* __fastcall RemovePlayerFromMap(int playerIndex)
 }
 
 //----- (00459E48) --------------------------------------------------------
-void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun )
+void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun, bool noStun /*= false*/ )
 {
 	if( IsGodMode ){ return; }
 	if( (uint)playerIndex >= 4 ){
@@ -3453,6 +3473,9 @@ void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun )
 	}
 	if( soundIndex != -1 ){
 		PlayLocalSound(soundIndex, player.Row, player.Col);
+	}
+	if( noStun ){ // caller grants stun immunity for this hit (Reflect vs monster melee), pain sound still plays
+		return;
 	}
 	int minST, maxST;
 	tie(minST, maxST) = GetPlayerStunThreshold(player);

@@ -817,7 +817,9 @@ void __fastcall CastRuneOfLighting( int spellCastIndex, int casterRow, int caste
 void __fastcall CastRuneOfGreatLightning( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastRuneOfImmolation( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastRuneOfStone( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
-void __fastcall CastReflect( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
+void __fastcall CastReflect( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile
+int ReflectInstancesOfCast( int casterIndex, int spellLevel );//	Missile
+void RefreshReflect( int casterIndex, int spellLevel );//	Missile
 void __fastcall CastBerserk( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 int __fastcall LimitPvMMeleeDamage( int playerIndex, int damage	);//	Player		int __usercall LimitPvMMeleeDamage@<edi>(int playerOffset@<ecx>, int result@<edi>)
 void __fastcall CastSpawnMeatBall( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
@@ -1473,7 +1475,7 @@ void __fastcall StartPlayerBlock( uint playerIndex, int orientation	);//	Player
 void __fastcall StartSpell( int arglist, int a2, int a3, int a4	);//	Player		
 void __fastcall FixPlrWalkTags( int playerIndex	);//	Player		
 char* __fastcall RemovePlayerFromMap( int playerIndex	);//	Player		
-void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun	);//	Player		
+void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun, bool noStun = false	);//	Player
 void __fastcall StartPlayerKill( int playerIndex, int earFlag	);//	Player		
 int  ModifyFireBoltDamage( );//	Player		int __usercall ModifyFireBoltDamage@<edx>()
 int __fastcall PlayerDeadItem( uint playerIndex, Item *item    );//	Player		
@@ -2076,6 +2078,7 @@ int __fastcall GetTextWidthBig( const char* s );
 void HighlightItemsNameOnMap();
 
 void DrawCombatTextAbovePlayer();
+void DrawReflectInstancesCount();
 void DrawFloatingHealthAndMana();
 int MaxAcidDPS(int monsterIndex, int playerIndex);
 void DamageMonstersByAuras();

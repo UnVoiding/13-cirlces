@@ -2058,6 +2058,7 @@ void MainDrawFunc() // DrawAndBlit
 			if( Dungeon->genType || Dungeon->isQuest ){
 				// DrawFloatingHealthAndMana(); // turning off for now...
 				DrawCombatTextAbovePlayer();
+				DrawReflectInstancesCount();
 				if( CurMon != -1 && ShowMonsterHealthBar ){
 					// DrawMonsterHealthBar(CurMon);
 					if (GameMode != GM_CLASSIC) DrawMonsterStatusBar(CurMon);
