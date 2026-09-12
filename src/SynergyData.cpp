@@ -275,8 +275,8 @@ Perk SynergyPerks[] = {
 	} },
 
 	{ SYNERGY_BOLSTER, {"    %i damage from enemies"}, "Bolster", {// ok
-		{ 16, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER,  5, PERK_GAIN_VITALITY,  5}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, -4 },
-		{ 22, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER, 10, PERK_GAIN_VITALITY, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, -8 },
+		{ 16, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER,  5, PERK_GAIN_VITALITY,  5}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, -5 },
+		{ 22, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER, 10, PERK_GAIN_VITALITY, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, -10 },
 	} },
 
 	{ SYNERGY_ACUITY, {"    +%i to accuracy,","    +%i points to damage,","    +%i to armor class"}, "Acuity", {// ?
