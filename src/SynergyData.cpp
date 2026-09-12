@@ -270,8 +270,8 @@ Perk SynergyPerks[] = {
 	} },
 
 	{ SYNERGY_NEGATION, {"    +%i to all resistance"}, "Negation", {// ok
-		{ 16, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER,  5, PERK_GAIN_MAGIC,  5}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  5 },
-		{ 22, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER, 10, PERK_GAIN_MAGIC, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 10 },
+		{ 16, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER,  5, PERK_GAIN_MAGIC,  5}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  10 },
+		{ 22, IPCM_ALL_CLASSES, {PERK_SWIFT_LEARNER, 10, PERK_GAIN_MAGIC, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 20 },
 	} },
 
 	{ SYNERGY_BOLSTER, {"    %i damage from enemies"}, "Bolster", {// ok
