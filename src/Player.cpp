@@ -3478,7 +3478,7 @@ void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun, bool 
 		return;
 	}
 	int minST, maxST;
-	tie(minST, maxST) = GetPlayerStunThreshold(player);
+	tie(minST, maxST) = GetPlayerStunThreshold(playerIndex);
 	int stunResist = minST + RNG(maxST - minST); // stun threshold randomize
 	LimitToMin(stunResist, 0);
 	int oak_check = PerkValue(PERK_RESILIENCE, playerIndex) + PerkValue(PERK_FOOTWORK, playerIndex) + PerkValue(SYNERGY_PERSEVERANCE, playerIndex);
@@ -3501,7 +3501,8 @@ void __fastcall StartPlayerHit( int playerIndex, int damage, int needStun, bool 
 	}
 }
 
-std::tuple<int, int> GetPlayerStunThreshold(const Player& player) {
+std::tuple<int, int> GetPlayerStunThreshold(int playerIndex) {
+	const Player& player = Players[playerIndex];
 	int stunResist_min, stunResist_max;
 	switch (player.fullClassId) { // #character stun formula list / #player stun
 		//WARRIORS
@@ -3583,6 +3584,9 @@ std::tuple<int, int> GetPlayerStunThreshold(const Player& player) {
 		stunResist_min += player.BaseVitality / 10;
 		stunResist_max += player.BaseVitality / 5;
 	}
+	int manaShieldST = ManaShieldStunThresholdBonus(playerIndex); // an active Mana Shield anchors the caster against stun
+	stunResist_min += manaShieldST;
+	stunResist_max += manaShieldST;
 
 	if (GameMode == GM_CLASSIC) {
 		stunResist_min = player.CharLevel;

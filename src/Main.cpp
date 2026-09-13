@@ -1047,7 +1047,7 @@ LABEL_44:
 				Tooltip_AddLine("percentage of enemy attacks deflected,", C_0_White);
 					// -- stun --
 				int minST, maxST; 
-				tie(minST, maxST) = GetPlayerStunThreshold(player);
+				tie(minST, maxST) = GetPlayerStunThreshold(CurrentPlayerIndex);
 				LimitToMin(minST, 0); 
 				LimitToMin(maxST, 0);
 				int stun_avoid_chance = PerkValue(PERK_RESILIENCE, CurrentPlayerIndex) + PerkValue(PERK_FOOTWORK, CurrentPlayerIndex) + PerkValue(SYNERGY_PERSEVERANCE, CurrentPlayerIndex);
@@ -1057,6 +1057,11 @@ LABEL_44:
 				Tooltip_AddLine(InfoPanelBuffer, C_0_White);
 				if (stun_avoid_chance > 0) {
 					sprintf(InfoPanelBuffer, "Stun avoid chance: %c%i%%", c, stun_avoid_chance);
+					Tooltip_AddLine(InfoPanelBuffer, C_0_White);
+				}
+				int manaShieldST = ManaShieldStunThresholdBonus(CurrentPlayerIndex);
+				if (manaShieldST > 0) {
+					sprintf(InfoPanelBuffer, "  including %c%i%c from Mana Shield", c, manaShieldST, c);
 					Tooltip_AddLine(InfoPanelBuffer, C_0_White);
 				}
 
@@ -3228,6 +3233,14 @@ int __stdcall GameWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						}
 						break;
 					}
+					case VK_77_M_KEY: { // Alt + M, drop a book of a given spell
+						int spellIndex = PS_11_MANA_SHIELD; // can change
+						if( IsGoldSplitPanelVisible ) spellIndex = HowMuchGoldYouWantToRemove; // if gold split panel opened - use input as PLAYER_SPELL
+						if( spellIndex > PS_0_NONE && spellIndex < PS_COUNT && Spells[spellIndex].BookQuality >= 0 ){ // spells with no book of their own cannot be dropped
+							CreateSpellBook( Players[ CurrentPlayerIndex ].Row + 1, Players[ CurrentPlayerIndex ].Col, spellIndex, 0, 1 );
+						}
+						break;
+					}
                     case VK_75_K_KEY: { // Alt + K, drop of a given line of unique items
                         for( size_t i = 0; i < count_UniqueItems; ++i ){
                             UniqueItem& uniq = UniqueItems[i];
@@ -3269,6 +3282,15 @@ int __stdcall GameWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							Players[ CurrentPlayerIndex ].Xp = LevelUp( PlayerMaxLevel() - 1 );
 						}
 						break; // Alt + N, level up
+					case VK_80_P_KEY: { // Alt + P, add 50 unused stat points
+						auto& cheatPlayer = Players[ CurrentPlayerIndex ];
+						int pointsToMax = LevelPointsToMax( CurrentPlayerIndex );
+						if( cheatPlayer.AvailableLvlPoints + 50 <= pointsToMax ){
+							cheatPlayer.AvailableLvlPoints += 50;
+						}else{
+							cheatPlayer.AvailableLvlPoints = pointsToMax;
+						}
+						break; }
 					case VK_65_A_KEY: // Alt + A
 						//DotAcidMechanic = !DotAcidMechanic;
 						//IsAutoPickup = !IsAutoPickup; //disabling/enabling auto-selection (for now, only gold)

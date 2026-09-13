@@ -74,9 +74,9 @@ Perk SynergyPerks[] = {
 		{ 30, IPCM_ALL_CLASSES, {PERK_RESISTANCE, 10, PERK_TOUGHNESS, 5, PERK_IRONCLAD, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 30 },
 	} },
 
-	{ SYNERGY_ENERGY_FIELD, {"excessive mana shield::damage gets reduced::    additionally by %i%%"}, "Energy Field", {//ok
-		{ 30, IPCM_ANY_MAGE, {PERK_MIND_OVER_MATTER, 5, PERK_IRONCLAD,  5}/*perk*/, { PS_11_MANA_SHIELD, 8 }/*spell*/, 0,0,0,0/*sdmv*/, 5 },
-		{ 44, IPCM_WARLOCK,	 {PERK_MIND_OVER_MATTER, 7, PERK_IRONCLAD, 10}/*perk*/, { PS_11_MANA_SHIELD, 14 }/*spell*/, 0,0,0,0/*sdmv*/, 10 },
+	{ SYNERGY_ENERGY_FIELD, {"excessive mana shield::damage gets reduced::    additionally by %i%%","while mana shield is up::it also raises stun::threshold by %i"}, "Energy Field", {//ok
+		{ 30, IPCM_ANY_MAGE, {PERK_MIND_OVER_MATTER, 3, PERK_IRONCLAD, 3}/*perk*/, { PS_11_MANA_SHIELD, 8 }/*spell*/, 0,0,0,0/*sdmv*/, 5, 40 },
+		{ 44, IPCM_WARLOCK,	 {PERK_MIND_OVER_MATTER, 7, PERK_IRONCLAD, 5}/*perk*/, { PS_11_MANA_SHIELD, 20 }/*spell*/, 0,0,0,0/*sdmv*/, 10, 100 },
 	} },
 
 	{ SYNERGY_INEXORABILITY, {"increases stats (based on clvl)::    accuracy: +clvl/%i","    melee damage: +clvl/%i","    armor class: +clvl/%i"}, "Inexorability", {//ok

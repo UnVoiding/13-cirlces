@@ -862,7 +862,16 @@ void __fastcall CastFlashForward( int spellCastIndex, int casterRow, int casterC
 void __fastcall CastNullSpell( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastSomeAnotherFlashBk( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastFlashBack( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
-void __fastcall CastManaShield( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
+void __fastcall CastManaShield( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile
+int FindManaShieldMissile( int playerIndex );//	Missile
+bool IsManaShieldActive( int playerIndex );//	Missile
+int& ManaShieldMindOverMatterPoints( Missile& missile );//	Missile
+int& ManaShieldEnergyFieldPoints( Missile& missile );//	Missile
+int ManaShieldStunThresholdManaPercent( int spellLevel );//	Missile
+int ManaShieldStunThresholdOfSnapshot( int playerIndex, int spellLevel, int mindOverMatterPoints, int energyFieldPoints );//	Missile
+int ManaShieldStunThresholdOfCast( int playerIndex, int spellLevel );//	Missile
+int ManaShieldStunThresholdBonus( int playerIndex );//	Missile
+void RefreshManaShield( int missileIndex, int casterType, int casterIndex, int spellLevel );//	Missile
 void __fastcall CastHellfireSegment( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastHydra( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
 void __fastcall CastChainLightning( int spellCastIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage	);//	Missile		
@@ -1016,7 +1025,7 @@ void __fastcall ClearMonsterOnMap( int monsterIndex	);//	Monster
 void __fastcall KnockbackMonster( int monsterIndex, int orientation, int range	);//	Monster		
 void __fastcall DamageMonsterByPlayer( int monsterIndex, int playerIndex, int damage, int dot = 0 	);//	Monster		
 std::tuple<int, int> GetMonsterStunThresholdRange(const Monster& monster);//	MonsterStunThreshold		
-std::tuple<int, int> GetPlayerStunThreshold(const Player& player);// Player stun threshold calculation
+std::tuple<int, int> GetPlayerStunThreshold(int playerIndex);// Player stun threshold calculation
 void __fastcall ScaleMonsterStunThreshold(int& monster_stun_threshold);//	MonsterStunThreshold		
 int __fastcall GetMonsterLifeStunThreshold(const Monster& monster);//	MonsterStunThreshold		
 int __fastcall RollMonsterStunThreshold(const Monster& monster);//	MonsterStunThreshold		
@@ -2099,7 +2108,9 @@ BaseCrit GetBaseCrits(int critType, int playerIndex);
 int GetPlayerKnockbackResistChance( uint playerIndex );
 void DrawPerksPanel();
 void PerksPanel_MouseMove();
+int PerkPoints(int perk, int playerIndex);
 int PerkValue(PERKS perk,int playerIndex, int effectIndex = 0);
+int PerkValueAtPoints(PERKS perk, int points, int effectIndex = 0);
 bool checkRequirementsForPerk(int p, int l);
 void addUnlimitedXpToPlayer(i64 xpGain, int index);
 i64 getPassiveXpFormula();

@@ -1201,14 +1201,14 @@ Perk Perks[PERKS_COUNT] = {
 		/*19*/ { 98, IPCM_ASSASSIN, {}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 200 },
 	} },
 
-	{ PERK_MIND_OVER_MATTER, {"excessive mana shield::damage reduced::    additionally by %i%%"}, "Mind over Matter", {// ok
-		/* 0*/ { 10, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,1 }/*spell*/, 0,0, 70,0 /*sdmv*/, 10 },
-		/* 1*/ { 13, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,2 }/*spell*/, 0,0, 85,0 /*sdmv*/, 20 },
-		/* 2*/ { 17, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,3 }/*spell*/, 0,0,105,0 /*sdmv*/, 30 },
-		/* 3*/ { 22, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,4 }/*spell*/, 0,0,130,0 /*sdmv*/, 35 },
-		/* 4*/ { 28, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,5 }/*spell*/, 0,0,160,0 /*sdmv*/, 40 },
-		/* 5*/ { 35, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {PS_11_MANA_SHIELD,6 }/*spell*/, 0,0,190,0 /*sdmv*/, 45 },
-		/* 6*/ { 43, IPCM_WARLOCK, {}/*perk*/, {PS_11_MANA_SHIELD,7 }/*spell*/, 0,0,220,0 /*sdmv*/, 50 },
+	{ PERK_MIND_OVER_MATTER, {"excessive mana shield::damage reduced::    additionally by %i%%","while mana shield is up::it also raises stun::threshold by %i"}, "Mind over Matter", {
+		/* 0*/ { 10, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,1 }/*spell*/, 0,0, 70,0 /*sdmv*/, {15,  5} },
+		/* 1*/ { 13, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,2 }/*spell*/, 0,0, 85,0 /*sdmv*/, {25,  10} },
+		/* 2*/ { 17, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,3 }/*spell*/, 0,0,105,0 /*sdmv*/, {35,  15} },
+		/* 3*/ { 22, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,6 }/*spell*/, 0,0,130,0 /*sdmv*/, {43,  25} },
+		/* 4*/ { 28, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,9 }/*spell*/, 0,0,160,0 /*sdmv*/, {50,  40} },
+		/* 5*/ { 35, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {PS_11_MANA_SHIELD,14 }/*spell*/, 0,0,190,0 /*sdmv*/, {58, 70} },
+		/* 6*/ { 43, IPCM_WARLOCK, {}/*perk*/, {PS_11_MANA_SHIELD,18 }/*spell*/, 0,0,220,0 /*sdmv*/, {65, 100} },
 	} },
 
 	{ PERK_GIVE_THEM_NOTHING, {"monsters can not::steal mana from you"}, "Give them Nothing", {// ok

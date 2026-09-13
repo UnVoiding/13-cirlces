@@ -204,7 +204,7 @@ int __fastcall GetDamageOfPlayerSpell(int playerIndex, int spellIndex, int spell
 			minDamage = 100 - PerkValue(PERK_FORTIFIED_SHIELD, playerIndex);
 		}
 		else {
-			minDamage = 100 + 100 * (100 - ( (spellLevel / 4) + (player.CharLevel / 6) + PerkValue(PERK_MIND_OVER_MATTER, playerIndex) + PerkValue(SYNERGY_ENERGY_FIELD, playerIndex))) / 100;
+			minDamage = 100 + 100 * (100 - ( (spellLevel / 4) + PerkValue(PERK_MIND_OVER_MATTER, playerIndex) + PerkValue(SYNERGY_ENERGY_FIELD, playerIndex))) / 100;
 		}
 	}
 		maxDamage = minDamage;
@@ -4644,6 +4644,126 @@ void __fastcall CastFlashBack( int missileIndex, int casterRow, int casterCol, i
 	missile.TimeToLive = 19;
 }
 
+// The live Mana Shield missile cast by this player, or -1 when the shield is down.
+//----- (th4) -------------------------------------------------------------
+int FindManaShieldMissile(int playerIndex)
+{
+	if( playerIndex < 0 ){
+		return -1;
+	}
+	for( int missileIndexIndex = 0; missileIndexIndex < MissileAmount; ++missileIndexIndex ){
+		int missileIndex = MissileIndexes[missileIndexIndex];
+		const Missile& missile = Missiles[missileIndex];
+		if( missile.BaseMissileIndex == MI_13_MANA_SHIELD && missile.CasterIndex == playerIndex && !missile.IsDeleted ){
+			return missileIndex;
+		}
+	}
+	return -1;
+}
+
+// True while a Mana Shield cast by this player is still up.
+//----- (th4) -------------------------------------------------------------
+bool IsManaShieldActive(int playerIndex)
+{
+	return FindManaShieldMissile(playerIndex) >= 0;
+}
+
+// What a live Mana Shield is worth is decided once, when it goes up, and kept on the missile: the
+// spell level it was cast at (Missile::SpellLevel) plus the points the caster held in Mind over
+// Matter and in the Energy Field synergy, in these two value[] slots. Spending a point in either
+// perk afterwards, or gaining spell levels, leaves a shield that is already standing alone - it
+// takes the new numbers on only when it is recast.
+//----- (th4) -------------------------------------------------------------
+int& ManaShieldMindOverMatterPoints(Missile& missile)
+{
+	return missile.value[2];
+}
+
+//----- (th4) -------------------------------------------------------------
+int& ManaShieldEnergyFieldPoints(Missile& missile)
+{
+	return missile.value[3];
+}
+
+// Percentage of current mana a Mana Shield of this spell level turns into Stun Threshold:
+// 1% to begin with, and one point more for every 10 spell levels. The spell description in the
+// spell book reads this too, so the text it prints steps up on the same levels the buff does.
+//----- (th4) -------------------------------------------------------------
+int ManaShieldStunThresholdManaPercent(int spellLevel)
+{
+	LimitToRange(spellLevel, 0, 200);// the same spell level ceiling the damage reduction uses
+	return 1 + spellLevel / 10;
+}
+
+// Stun Threshold a Mana Shield is worth for the given snapshot: the percentage of current mana
+// above, plus the flat amounts Mind over Matter and Energy Field are worth at those point counts.
+// Only the mana part is live - mana is spent and regenerated while the shield stands.
+//----- (th4) -------------------------------------------------------------
+int ManaShieldStunThresholdOfSnapshot(int playerIndex, int spellLevel, int mindOverMatterPoints, int energyFieldPoints)
+{
+	if( playerIndex < 0 ){
+		return 0;
+	}
+	const Player& player = Players[playerIndex];
+	int bonus = ManaShieldStunThresholdManaPercent(spellLevel) * (player.CurMana >> 6) / 100;
+	bonus += PerkValueAtPoints(PERK_MIND_OVER_MATTER, mindOverMatterPoints, 1);
+	bonus += PerkValueAtPoints(SYNERGY_ENERGY_FIELD, energyFieldPoints, 1);
+	LimitToMin(bonus, 0);
+	return bonus;
+}
+
+// What a Mana Shield cast right now, at the given spell level, would be worth. Used for the spell
+// panel preview, so it reads the perk points the player holds at this moment.
+//----- (th4) -------------------------------------------------------------
+int ManaShieldStunThresholdOfCast(int playerIndex, int spellLevel)
+{
+	if( playerIndex < 0 ){
+		return 0;
+	}
+	return ManaShieldStunThresholdOfSnapshot(playerIndex, spellLevel,
+		PerkPoints(PERK_MIND_OVER_MATTER, playerIndex), PerkPoints(SYNERGY_ENERGY_FIELD, playerIndex));
+}
+
+// The same Stun Threshold, but only while the shield is actually up: everything but the mana comes
+// from the snapshot the shield took at cast time, not from what the player could cast right now.
+//----- (th4) -------------------------------------------------------------
+int ManaShieldStunThresholdBonus(int playerIndex)
+{
+	int missileIndex = FindManaShieldMissile(playerIndex);
+	if( missileIndex < 0 ){
+		return 0;
+	}
+	Missile& missile = Missiles[missileIndex];
+	return ManaShieldStunThresholdOfSnapshot(playerIndex, missile.SpellLevel,
+		ManaShieldMindOverMatterPoints(missile), ManaShieldEnergyFieldPoints(missile));
+}
+
+// Recasting Mana Shield while one already stands does not raise a second shield: it re-snapshots
+// the caster's spell level and perk points onto the shield already up, and pays for the cast that
+// did it. A cast worth exactly what the live shield is worth changes nothing, costs nothing and
+// stays silent, so only the ordinary cast sound of the spell is heard.
+//----- (th4) -------------------------------------------------------------
+void RefreshManaShield(int missileIndex, int casterType, int casterIndex, int spellLevel)
+{
+	Missile& missile = Missiles[missileIndex];
+	int mindOverMatterPoints = PerkPoints(PERK_MIND_OVER_MATTER, casterIndex);
+	int energyFieldPoints = PerkPoints(SYNERGY_ENERGY_FIELD, casterIndex);
+	if( missile.SpellLevel == spellLevel
+	 && ManaShieldMindOverMatterPoints(missile) == mindOverMatterPoints
+	 && ManaShieldEnergyFieldPoints(missile) == energyFieldPoints ){
+		return;
+	}
+	missile.SpellLevel = spellLevel;
+	ManaShieldMindOverMatterPoints(missile) = mindOverMatterPoints;
+	ManaShieldEnergyFieldPoints(missile) = energyFieldPoints;
+	if( BaseMissiles[MI_13_MANA_SHIELD].CastSound != S_M1_NO_SOUND ){ // the sound a fresh cast plays when the shield goes up, CastMissile never reaches it on a refresh
+		PlayLocalSound(BaseMissiles[MI_13_MANA_SHIELD].CastSound, missile.Row, missile.Col);
+	}
+	if( casterType == CT_0_PLAYER ){// as in CastManaShield: a shield handed out by a shrine is free
+		MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_11_MANA_SHIELD);
+	}
+}
+
 //----- (00433178) --------------------------------------------------------
 void __fastcall CastManaShield(int missileIndex, int casterRow, int casterCol, int targetRow, int targetCol, int casterDirection, int casterType, int casterIndex, int damage)
 {
@@ -4655,6 +4775,10 @@ void __fastcall CastManaShield(int missileIndex, int casterRow, int casterCol, i
     int& playerLastBaseLife = missile.value[1];
     playerLastCurLife = player.CurLife;
     playerLastBaseLife = player.BaseLife;
+	// no Mana Shield of this caster was alive (CastMissile refreshes instead of raising a second one),
+	// so the shield snapshots what it is worth from scratch here
+	ManaShieldMindOverMatterPoints(missile) = PerkPoints(PERK_MIND_OVER_MATTER, casterIndex);
+	ManaShieldEnergyFieldPoints(missile) = PerkPoints(SYNERGY_ENERGY_FIELD, casterIndex);
 	missile.value[7] = -1;
 	// 004331C4
 	if( casterType == CT_0_PLAYER ){// ненужная перестраховка. Всё равно никто кроме игроков не способен кастовать мш
@@ -6549,6 +6673,9 @@ int __fastcall CastMissile(int casterRow, int casterCol, int targetRow, int targ
 				if( baseMissileIndex == MI_79_REFLECT && casterType == CT_0_PLAYER && casterIndex >= 0 ){
 					RefreshReflect(casterIndex, spellLevel);// the icon above the player stays the same one, only the instances behind it are topped up
 				}
+				if( baseMissileIndex == MI_13_MANA_SHIELD && casterIndex >= 0 ){
+					RefreshManaShield(MissileIndexes[missileIndexIndex], casterType, casterIndex, spellLevel);// the shield standing stays the same one, only what it is worth is re-snapshotted
+				}
 				return -1;
 			}
 		}
@@ -7906,17 +8033,15 @@ void __fastcall ManaShieldAction(int missileIndex)
 
 		int slvl = missile.SpellLevel;
 		LimitToMax(slvl, 200);
-		int clvlModifier = player.CharLevel / 6;
-		LimitToMax(clvlModifier, 25);
-		int slvlModifier = slvl / 4;
-		LimitToMax(clvlModifier, 50);
-		int momModifier = PerkValue(PERK_MIND_OVER_MATTER, playerIndex);
-		int efModifier = PerkValue(SYNERGY_ENERGY_FIELD, playerIndex);
+		int slvlModifier = slvl / 2;// 0.5% per spell level
+		LimitToMax(slvlModifier, 100);
+		int momModifier = PerkValueAtPoints(PERK_MIND_OVER_MATTER, ManaShieldMindOverMatterPoints(missile));// the points the shield saw when it went up, not the ones the player holds now
+		int efModifier = PerkValueAtPoints(SYNERGY_ENERGY_FIELD, ManaShieldEnergyFieldPoints(missile));
 		if (HasTrait(playerIndex, TraitId::Paladin) || GameMode == GM_CLASSIC) {
 			modified_damage -= modified_damage * PerkValue(PERK_FORTIFIED_SHIELD, playerIndex) / 100;
 		}
-		else{
-			modified_damage += modified_damage * (	100 - (	slvlModifier/*50 max*/ + clvlModifier/*25 max*/ + momModifier/*50 max*/	+ efModifier/*10 max*/ ) ) / 100;
+		else{// character level deliberately plays no part here: the shield is earned with spell levels and perks, it must not improve on its own
+			modified_damage += modified_damage * (	100 - (	slvlModifier/*100 max*/ + momModifier/*65 max*/	+ efModifier/*20 max*/ ) ) / 100;
 		}
 		LimitToMin(modified_damage, 0);
 		player.CurLife = prevCurLife;

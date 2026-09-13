@@ -523,6 +523,19 @@ int PerkValue(PERKS perk, int playerIndex, int effectIndex)
 	return value;
 }
 
+// The value a perk is worth at a given number of points, instead of at the points the player holds
+// right now. Buffs that snapshot a perk when they go up (Mana Shield) keep the point count they saw
+// and read their magnitude back through here, so later points in the perk leave them untouched.
+//----- (th4) ------------------------------------------------------------
+int PerkValueAtPoints(PERKS perk, int points, int effectIndex)
+{
+	LimitToMax(points, Perks[perk].levels);
+	if( points <= 0 ){
+		return 0;
+	}
+	return Perks[perk].level[ points - 1 ].value[effectIndex];
+}
+
 //----- (th2) ------------------------------------------------------------
 i64 getPassiveXpFormula()
 {

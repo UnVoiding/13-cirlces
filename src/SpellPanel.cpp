@@ -776,7 +776,11 @@ void DrawSpellBook()
 		else if (spellIndex == PS_11_MANA_SHIELD) {
 			sprintf(InfoPanelBuffer, "damage is substracted");
 			drawLine(InfoPanelBuffer);
-			sprintf(InfoPanelBuffer, "from mana instead of life");
+			sprintf(InfoPanelBuffer, "from mana instead of life.");
+			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "Increases stun threshold");
+			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "by %i%% of current mana", ManaShieldStunThresholdManaPercent(PlayerSpellLevel(CurrentPlayerIndex, PS_11_MANA_SHIELD)));
 			drawLine(InfoPanelBuffer);
 			sprintf(InfoPanelBuffer, " ");
 			drawLine(InfoPanelBuffer);
@@ -1187,6 +1191,8 @@ void DrawSpellBook()
 			drawLine(InfoPanelBuffer);
         }else if( spellIndex == PS_11_MANA_SHIELD ){
             sprintf( InfoPanelBuffer, "Damage Received: %i%%", minDamage );
+            drawLine( InfoPanelBuffer );
+            sprintf( InfoPanelBuffer, "Stun Threshold: +%i", ManaShieldStunThresholdOfCast(CurrentPlayerIndex, PlayerSpellLevel(CurrentPlayerIndex, PS_11_MANA_SHIELD)) );
             drawLine( InfoPanelBuffer );
         }else if (spellIndex == PS_16_REFLECT) {
 			int reflect_layers = ReflectInstancesOfCast(CurrentPlayerIndex, PlayerSpellLevel(CurrentPlayerIndex, PS_16_REFLECT));
