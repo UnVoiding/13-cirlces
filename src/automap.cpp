@@ -22,7 +22,14 @@ line_vertex AutomapLines[10000];
 
 int AutomapRotated;
 uchar AutomapCurrentDrawColor;
-int Xofs, Yofs; // Player center on screen buf ( x + Screen_LeftBorder, y + ScreenTopEnd ) 
+int Xofs, Yofs; // Player center on screen buf ( x + Screen_LeftBorder, y + ScreenTopEnd )
+
+// TEMPORARY, for colour testing only. Normally the automap is switched off entirely while the
+// inventory (or the gold split panel on top of it) is open - see needDisableAutoMap in DrawAutoMap -
+// and what is left of it gets clipped off the panel area by isPointInPanel. Both are suppressed
+// while this is true, so the mana potion markers can be watched changing colour with Alt+2 while
+// the gold split input that feeds it is open. Set to false to restore the normal behaviour.
+static const bool AutomapStaysOpenOverInventory = true;
 
 enum Automap_Param
 {
@@ -244,7 +251,7 @@ void DrawAutoMap()
 	bool needDisableAutoMap =
                 CurrentDialogIndex
                 || Speech_IsPanelVisible
-                || IsINVPanelVisible
+                || (IsINVPanelVisible && !AutomapStaysOpenOverInventory)
                 || IsSpellBookVisible
                 || IsCHARPanelVisible
                 || IsQUESTPanelVisible
@@ -256,7 +263,7 @@ void DrawAutoMap()
                 || IsPerksPanelVisible
 				|| IsInfoWindowVisible
                 || SelectCurSpellMode
-                || IsGoldSplitPanelVisible
+                || (IsGoldSplitPanelVisible && !AutomapStaysOpenOverInventory)
                 || IsHELPVisible
                 || OnScreenMessage::Head != OnScreenMessage::Tail || OnScreenMessage::NotMainDrawing
                 || IsPlayerDead
@@ -1148,7 +1155,7 @@ bool isPointInPanel( int x, int y )
     int yS = y - Screen_TopBorder;
 
 
-    if( IsINVPanelVisible && yS <= InventoryPanelRect.Down && x >= WorkingWidth - Screen_LeftBorder - GUI_PanelWidth )
+    if( !AutomapStaysOpenOverInventory && IsINVPanelVisible && yS <= InventoryPanelRect.Down && x >= WorkingWidth - Screen_LeftBorder - GUI_PanelWidth )
     {
         return true;
     }
