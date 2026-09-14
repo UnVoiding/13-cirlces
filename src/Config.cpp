@@ -146,8 +146,6 @@ bool ShowPlayerAuraHitVisual = false;
 bool IsRestrictMouseToWindow = false;
 bool XinputEnabled = true;
 char UserPlayerTrn[ 256/*4096*/ ] = "";
-bool UserPanelB = false;
-bool UserPotionB = false;
 char UserSeed[1024] = "";
 bool ShowGameMode = false;
 bool LowCpuUsage = true;
@@ -209,9 +207,7 @@ ConfigLine ConfigStructure[] = {
 	{ cfgString, 0, "playertrn", 0, &cfg<UserPlayerTrn> },
 	{ cfgString, 0, "newgame", 0, &cfg<NewGameOnStart>, OFF },
 	{ cfgString, 0, "difficulty", 0, &cfg<DifficultyOnStart> },
-	{ cfgString, MO_BOOL, "panel", 0, &cfg<UserPanelB>, OFF },
 	{ cfgString, 0, "drawmode", 0, &cfg<DrawMode> },
-	{ cfgString, MO_BOOL, "potion", 0, &cfg<UserPotionB>, OFF },
 	{ cfgString, 0, "vertical", 0, &cfg<VerticalWin>, ON },
 	{ cfgString, 0, "seed", 0, &cfg<UserSeed> },
 	{ cfgString, 0, "secondwin", 0, &cfg<IsSecondWin>, OFF },

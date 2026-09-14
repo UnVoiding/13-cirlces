@@ -5712,7 +5712,7 @@ void __fastcall CastManaRecharge( int missileIndex, int casterRow, int casterCol
 		manaAddsCount = 4 * manaAddsCount / 10; // mage classes now have less mana recovered from Mana spell
 	}
 	// 00433FA7
-	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana via mana charges, up to 2x max
+	int manaCap = ManaOverflowCap(casterIndex); // Master Caster lets mana charges top a character up past his max mana
 	player.CurMana += manaAddsCount;
 	LimitToMax(player.CurMana, manaCap);
 	// 00433FC7
@@ -5728,9 +5728,9 @@ void __fastcall CastMagi( int missileIndex, int casterRow, int casterCol, int ta
 {
 	Missile& missile = Missiles[missileIndex];
 	Player& player = Players[casterIndex];
-	// the Magi spell restores one full mana bar - for a mage that can carry mana into the overflow,
-	// but it never tops him straight up to the overflow cap
-	int manaCap = ManaOverflowCap(player);
+	// the Magi spell restores one full mana bar - for a character who can carry mana into the overflow
+	// that can push him past his max, but it never tops him straight up to the overflow cap
+	int manaCap = ManaOverflowCap(casterIndex);
 	player.CurMana += player.MaxCurMana;
 	LimitToMax(player.CurMana, manaCap);
 	player.BaseMana += player.MaxBaseMana;

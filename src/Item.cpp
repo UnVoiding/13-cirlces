@@ -137,10 +137,10 @@ bool UseHealingPotion(int playerIndex)
 bool UseFullManaPotion(int playerIndex)
 {
 	Player& player = Players[playerIndex];
-	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana, up to 2x max
+	int manaCap = ManaOverflowCap(playerIndex); // Master Caster lets potions top a character up past his max mana
 	if( player.CurMana < manaCap ){
-		// a full potion restores one full mana bar - for a mage that can carry mana into the overflow,
-		// but it never tops him straight up to the overflow cap
+		// a full potion restores one full mana bar - for a character who can carry mana into the overflow
+		// that can push him past his max, but it never tops him straight up to the overflow cap
 		int manaAdd = player.MaxCurMana;
 		int baseManaAdd = player.MaxBaseMana;
 		if (HasTrait(playerIndex, TraitId::Giant)) {
@@ -161,7 +161,7 @@ bool UseFullManaPotion(int playerIndex)
 bool UseManaPotion(int playerIndex)
 {
 	Player& player = Players[playerIndex];
-	int manaCap = ManaOverflowCap(player); // mage archetypes can be topped up past their max mana, up to 2x max
+	int manaCap = ManaOverflowCap(playerIndex); // Master Caster lets potions top a character up past his max mana
 	if( player.CurMana < manaCap ){
         int manaAdd = RNG(player.MaxCurMana >> 8);
         int maxMana = (player.MaxCurMana >> 8) & ~1;
@@ -515,15 +515,14 @@ void printItemClassReqInfo( const Item* aItem )
 char* GetItemSprites( int& spriteId )
 {
 	extern char UserPotion[64];
-	if( UserPotionB || GameMode == GM_CLASSIC){
-		switch( spriteId - 12 ){
-		case 314 + 168: spriteId = 32 + 12; return ClassicItemSprites; // potion of healing
-		case 496 + 168: spriteId = 39 + 12; return ClassicItemSprites; // potion of mana
-		case 449 + 168: spriteId = 35 + 12; return ClassicItemSprites; // potion of full healing
-		case 497 + 168: spriteId = 0  + 12; return ClassicItemSprites; // potion of full mana
-		case  37:		spriteId = 36 + 12; return ClassicModItemSprites; // elixir of dexterity
-		case 179 + 168: spriteId = 241 + 168 + 12 - 179; return AddonModItemSprites; // relict of mana
-		}
+	// the blue (original) bottle graphics are the only ones now - this used to be behind "set potion"
+	switch( spriteId - 12 ){
+	case 314 + 168: spriteId = 32 + 12; return ClassicItemSprites; // potion of healing
+	case 496 + 168: spriteId = 39 + 12; return ClassicItemSprites; // potion of mana
+	case 449 + 168: spriteId = 35 + 12; return ClassicItemSprites; // potion of full healing
+	case 497 + 168: spriteId = 0  + 12; return ClassicItemSprites; // potion of full mana
+	case  37:		spriteId = 36 + 12; return ClassicModItemSprites; // elixir of dexterity
+	case 179 + 168: spriteId = 241 + 168 + 12 - 179; return AddonModItemSprites; // relict of mana
 	}
 	if( spriteId <= 179){ // выбор файла для отрисовки графики вещи
 		return GameMode == GM_CLASSIC ? ClassicItemSprites : ClassicModItemSprites;
@@ -612,12 +611,11 @@ void SetFlipTable()
 		}
 	}
 	extern char UserPotion[ 64 ];
-	if( UserPotionB || GameMode == GM_CLASSIC){
-		ItemFlipTable[ 664 ] = FL_20_FBTTLEBB; // potion of mana
-		ItemFlipTable[ 665 ] = FL_20_FBTTLEBB; // potion of full mana
-		ItemFlipTable[  37 ] = FL_24_FBTTLEBL; // elixir of dexterity
-		ItemFlipTable[ 179 + 168 ] = FL_56_RELICTBB; // relict of mana
-	}
+	// the blue (original) bottle graphics are the only ones now - this used to be behind "set potion"
+	ItemFlipTable[ 664 ] = FL_20_FBTTLEBB; // potion of mana
+	ItemFlipTable[ 665 ] = FL_20_FBTTLEBB; // potion of full mana
+	ItemFlipTable[  37 ] = FL_24_FBTTLEBL; // elixir of dexterity
+	ItemFlipTable[ 179 + 168 ] = FL_56_RELICTBB; // relict of mana
 }
 
 //----- (0041E584) -------------------------------------------------------- interface
@@ -4674,7 +4672,7 @@ LABEL_73:
 	//player.CurMana += addManaPercents;
 	player.MaxCurMana += addManaPercents + sisyphean_trait_benefit;
 	//LimitToMin(player.MaxCurMana, 64); // doesn't seem  to work !!!
-	LimitToMax( player.CurMana, ManaOverflowCap(player) ); // mage archetypes may be sitting above MaxCurMana on mana charges/potions; don't wipe that out on every stat recalc
+	LimitToMax( player.CurMana, ManaOverflowCap(playerIndex) ); // an overflowing character may be sitting above MaxCurMana on mana charges/potions; don't wipe that out on every stat recalc
 	if (!(player.gameChanger & BIT(GC_21_C_NO_EVIL))) {
 		player.Infravision = player.effectFlag[EA_INFRAVISION];
 	}

@@ -2715,7 +2715,7 @@ uchar* MainPanelImage; // декодированные (чистые пиксе�
 char* CtrlPan_TalkButtCEL; // не декодированные CEL данные имеют тип char*
 uchar* LifeShereImage; // декодированный (uchar*)
 uchar* ManaShereImage; // декодированный (uchar*)
-uchar* ManaOverflowGlobeImage; // 88x88, darker copy of the mana liquid only, 0 = not liquid (see BuildManaOverflowGlobe)
+uchar* ManaOverflowGlobeImage[ManaOverflowTones]; // 88x88 each, darker copies of the mana liquid only, 0 = not liquid (see BuildManaOverflowGlobe)
 Item UniqueInfo;
 uchar IconColors[256];
 uchar IconColorsDisabled[256];
@@ -2724,7 +2724,7 @@ uchar IconColorsRelict[256];
 uchar IconColorsSkill[256];
 uchar IconColorsCharges[256];
 uchar IconColorsTrait[256];
-uchar ManaOverflowColors[256]; // X\other\ManaOvfl.trn - darker tone used for the mana overflow filling
+uchar ManaOverflowColors[ManaOverflowTones][256]; // X\other\ManaOvfl.trn, ManaOvf2.trn, ManaOvf3.trn - one darker tone per bar of mana overflow
 char SelectedSpellType;
 uchar MonsterBarIconColors[6][256];
 uchar MonsterBarBorderColors[3][256];
@@ -2821,10 +2821,10 @@ Menu GameplayOptions2[6] = {
 		{0x80000000, 0, 0}
 };
 Menu VisualOptions1[6] = {
-		{0x80000000,  "panel ", PanelHandler},
-		{0x80000000,  "potion ", PotionHandler},
 		{0x80000000,  "mapblend ", MapblendHandler },
 		{0x80000000,  "showNumbersOnHealth ", ShowNumbersOnHealthHandler},
+		{0x80000000,  " ", SaveToConfigHandler},
+		{0x80000000,  " ", SaveToConfigHandler},
 		{0x80000000,   "Next page", VisualOptions2MenuHandler},
 		{0x80000000, 0, 0}
 };

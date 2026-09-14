@@ -19,7 +19,7 @@ bool tempFullscreen, tempShowFPS, tempMapblend, tempShowNumbersOnHealth,
 tempShowNumbersOnMana,tempAlwaysHighlightGolem,tempShowMonsterHealthBar,tempShowVersionOnScreen,
 tempshowCombatText,tempshowCombatExp,tempShowPercentExpGain, tempShowReceivedDamage,
 tempmergeCombatTexts, tempshowInflictedDamage, tempShowBreakWarning, tempRedInactiveSpellIcons,
-tempRunindungeon, tempAutopickup, tempEasyclick, tempAlthold, tempSwapSpellsOnScroll, tempPanel, tempPotion;
+tempRunindungeon, tempAutopickup, tempEasyclick, tempAlthold, tempSwapSpellsOnScroll;
 bool firstTimeFS = true;
 
 //----- (0041B279) -------------------------------------------------------- menu
@@ -391,8 +391,6 @@ void __fastcall SetupMenuHandler(int a1, int a2)
 	if (!tempEasyclick) tempEasyclick = EasyClick;
 	if (!tempAlthold) tempAlthold = NeedAltHold;
 	if (!tempSwapSpellsOnScroll) tempSwapSpellsOnScroll = SwapSpellsOnScroll;
-	if (!tempPanel) tempPanel = UserPanelB;
-	if (!tempPotion) tempPotion = UserPotionB;
 	if (!tempMapblend) tempMapblend = MapBlend;
 	if (!tempShowNumbersOnHealth) tempShowNumbersOnHealth = ShowNumbersOnHealth;
 	if (!tempShowNumbersOnMana) tempShowNumbersOnMana = ShowNumbersOnMana;
@@ -438,8 +436,6 @@ void __fastcall SaveToConfig()
 		fprintf(ini, "\n");
 		fprintf(ini, "//VISUAL OPTIONS\n");
 		fprintf(ini, "\n");
-		fprintf(ini, "set panel %s\n", tempPanel ? "on" : "off");
-		fprintf(ini, "set potion %s\n", tempPotion ? "on" : "off");
 		fprintf(ini, "set map open off // ??\n");
 		fprintf(ini, "set mapblend %s\n", tempMapblend ? "on" : "off");
 		fprintf(ini, "set showNumbersOnHealth %s\n", tempShowNumbersOnHealth ? "on" : "off");
@@ -519,8 +515,6 @@ void __fastcall SaveToConfig()
 	EasyClick = tempEasyclick;
 	NeedAltHold = tempAlthold;
 	SwapSpellsOnScroll = tempSwapSpellsOnScroll;
-	UserPanelB = tempPanel;
-	UserPotionB = tempPotion;
 	MapBlend = tempMapblend;
 	ShowNumbersOnHealth = tempShowNumbersOnHealth;
 	ShowNumbersOnMana = tempShowNumbersOnMana;
@@ -815,21 +809,13 @@ void __fastcall ShowBreakWarningHandler(int a1, int a2){
 }
 
 void __fastcall VisualOptions1MenuHandler(int a1, int a2) {
-	switch(tempPanel){
-	case true: VisualOptions1[0].NamePtr = "Mana: blue"; break;
-	case false: VisualOptions1[0].NamePtr = "Mana: dark"; break;
-	}
-	switch (tempPotion) {
-	case true: VisualOptions1[1].NamePtr = "Mana potions: blue"; break;
-	case false: VisualOptions1[1].NamePtr = "Mana potions: dark"; break;
-	}
 	switch (tempMapblend) {
-	case true: VisualOptions1[2].NamePtr = "map transparency: on"; break;
-	case false: VisualOptions1[2].NamePtr = "map transparency: off"; break;
+	case true: VisualOptions1[0].NamePtr = "map transparency: on"; break;
+	case false: VisualOptions1[0].NamePtr = "map transparency: off"; break;
 	}
 	switch (tempShowNumbersOnHealth) {
-	case true: VisualOptions1[3].NamePtr = "show Numbers On Health: on"; break;
-	case false: VisualOptions1[3].NamePtr = "show Numbers On Health: off"; break;
+	case true: VisualOptions1[1].NamePtr = "show Numbers On Health: on"; break;
+	case false: VisualOptions1[1].NamePtr = "show Numbers On Health: off"; break;
 	}
 	switch (tempShowNumbersOnMana) {
 	case true: VisualOptions2[0].NamePtr = "show Numbers On Mana: on"; break;
@@ -853,31 +839,17 @@ void __fastcall VisualOptions1MenuHandler(int a1, int a2) {
 	}
 	Menu_SetupMenuWindow(VisualOptions1, 0);
 }
-void __fastcall PanelHandler(int a1, int a2) {
-	switch (tempPanel) {
-	case true: VisualOptions1[0].NamePtr = "Mana: dark"; tempPanel = false; break;
-	case false: VisualOptions1[0].NamePtr = "Mana: blue"; tempPanel = true; break;
-	}
-	SaveToConfig();
-}
-void __fastcall PotionHandler(int a1, int a2) {
-	switch (tempPotion) {
-	case true: VisualOptions1[1].NamePtr = "Mana potions: dark"; tempPotion = false; break;
-	case false: VisualOptions1[1].NamePtr = "Mana potions: blue"; tempPotion = true; break;
-	}
-	SaveToConfig();
-}
 void __fastcall MapblendHandler(int a1, int a2) {
 	switch (tempMapblend) {
-	case true: VisualOptions1[2].NamePtr = "map transparency: off"; tempMapblend = false; break;
-	case false: VisualOptions1[2].NamePtr = "map transparency: on"; tempMapblend = true; break;
+	case true: VisualOptions1[0].NamePtr = "map transparency: off"; tempMapblend = false; break;
+	case false: VisualOptions1[0].NamePtr = "map transparency: on"; tempMapblend = true; break;
 	}
 	SaveToConfig();
 }
 void __fastcall ShowNumbersOnHealthHandler(int a1, int a2) {
 	switch (tempShowNumbersOnHealth) {
-	case true: VisualOptions1[3].NamePtr = "show Numbers On Health: off"; tempShowNumbersOnHealth = false; break;
-	case false: VisualOptions1[3].NamePtr = "show Numbers On Health: on"; tempShowNumbersOnHealth = true; break;
+	case true: VisualOptions1[1].NamePtr = "show Numbers On Health: off"; tempShowNumbersOnHealth = false; break;
+	case false: VisualOptions1[1].NamePtr = "show Numbers On Health: on"; tempShowNumbersOnHealth = true; break;
 	}
 	SaveToConfig();
 }

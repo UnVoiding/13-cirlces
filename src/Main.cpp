@@ -2729,19 +2729,22 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 		}
 	}
 
-	bool isMageArchetype = IsMageArchetype(player.fullClassId);
-	if (isMageArchetype && player.CurMana > player.MaxCurMana) {
-		// mana above max (from potions/mana charges/magi charges) decays back toward max, faster the higher into the overflow band it sits
+	bool isOverflowing = player.CurMana > player.MaxCurMana;
+	if (isOverflowing) {
+		// mana above max (from potions/mana charges/magi charges) decays back toward max, faster the higher
+		// into the Master Caster overflow band it sits - thirds of the band, whatever the band's width
+		int overflowBand = ManaOverflowCap(playerIndex) - player.MaxCurMana;
+		int intoOverflow = player.CurMana - player.MaxCurMana;
 		int manaOverflowDecayPercent;
-		if( player.CurMana >= player.MaxCurMana * 166 / 100 ){			// 166-200% of max
+		if( intoOverflow * 3 >= overflowBand * 2 ){			// top third of the band
 			manaOverflowDecayPercent = 10;
-		}else if( player.CurMana >= player.MaxCurMana * 133 / 100 ){		// 133-166% of max
+		}else if( intoOverflow * 3 >= overflowBand ){		// middle third
 			manaOverflowDecayPercent = 5;
-		}else{																// 100-133% of max
+		}else{												// bottom third
 			manaOverflowDecayPercent = 3;
 		}
 		int manaOverflowDecayPerTick = player.MaxCurMana * manaOverflowDecayPercent / (100 * ENGINE_FPS);
-		LimitToMax(manaOverflowDecayPerTick, player.CurMana - player.MaxCurMana); // don't decay past max in one tick
+		LimitToMax(manaOverflowDecayPerTick, intoOverflow); // don't decay past max in one tick
 		manaAdd -= manaOverflowDecayPerTick;
 	}
 
@@ -2749,10 +2752,7 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 		manaAdd = 0;
 	}
 	// natural regen alone can never push mana past max; it can only let existing overflow (from other sources) decay
-	int manaCapThisTick = player.MaxCurMana;
-	if (isMageArchetype && player.CurMana > manaCapThisTick) {
-		manaCapThisTick = player.CurMana;
-	}
+	int manaCapThisTick = isOverflowing ? player.CurMana : player.MaxCurMana;
 	player.CurMana += manaAdd;
 	player.BaseMana += manaAdd;
 	if (playerIndex == CurrentPlayerIndex) {
@@ -3334,6 +3334,13 @@ int __stdcall GameWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					case VK_48_0_KEY: // Alt + 0 Add 1 000 000 gold
 						SpawnSomething(BI_0_GOLD, PlayerRowPos, PlayerColPos, 0, 0, 0, 0, 1'000'000);
 						break;
+					case VK_50_2_KEY: { // Alt + 2, recolour mana potions on the automap, for trying palette entries out
+						int color = Default_AutomapManaPotionColor; // with the panel closed: back to the default
+						if( IsGoldSplitPanelVisible ) color = HowMuchGoldYouWantToRemove; // if gold split panel opened - use input as palette index
+						LimitToRange( color, 0, 255 );
+						AutomapManaPotionColor = (uchar)color;
+						break;
+					}
 					case VK_82_R_KEY: //Alt + R test spell book drop randomness
 						if( CreateSpellBook( PlayerRowPos, PlayerColPos, -123, 0, 1 ) == -1 ){
 							ofstream gen("gen_"s + to_string(CurItemGenVersion), ios_base::app);

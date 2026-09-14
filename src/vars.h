@@ -562,7 +562,7 @@ extern int InfoPanelUsed;//
 extern int TalkPanelButtonState[3];//	
 extern char SelectedSpellIndex;//	
 extern uchar* ManaShereImage;//
-extern uchar* ManaOverflowGlobeImage;// 88x88 darker mana liquid, 0 = not liquid
+extern uchar* ManaOverflowGlobeImage[ManaOverflowTones];// 88x88 darker mana liquid, one per overflow bar, 0 = not liquid
 extern char CurFontColor;//	начало блока
 extern int MainPanelSelector;//	
 extern char* CtrlPan_GolddropCEL;//	
@@ -589,7 +589,7 @@ extern uchar IconColorsRelict[256];//
 extern uchar IconColorsSkill[256];// 
 extern uchar IconColorsCharges[256];// 
 extern uchar IconColorsTrait[256];//
-extern uchar ManaOverflowColors[256];// X\other\ManaOvfl.trn
+extern uchar ManaOverflowColors[ManaOverflowTones][256];// X\other\ManaOvfl.trn, ManaOvf2.trn, ManaOvf3.trn
 extern uchar MonsterBarIconColors[6][256]; // DrawMonsterStatusBar
 extern uchar MonsterBarBorderColors[3][256]; // DrawMonsterStatusBar
 extern int GoldYouHave;//	
@@ -722,7 +722,8 @@ extern int SoundMessage;//
 extern HANDLE CurSpeechHandle;//	
 extern Sound* CurSpeechSound;//	
 extern uint HashSource[5][256];//	
-extern uchar AutomapCurrentDrawColor;//	
+extern uchar AutomapCurrentDrawColor;//
+extern uchar AutomapManaPotionColor;// palette index for mana potions on the automap, retunable with the Alt+2 cheat
 extern int AutomapRotated;//	
 extern int LastSeed;//	
 extern u64 LastSeed64;//	
@@ -1213,8 +1214,6 @@ extern int ScreenHeight;//
 extern char PlayerSpellIndexOfCurNova;//	
 extern char CastingNovaInProgress;//
 extern ConfigLine ConfigStructure[];
-extern bool UserPanelB;
-extern bool UserPotionB;
 extern bool D3dRef;
 extern int AllocCount;
 extern int FreeCount;

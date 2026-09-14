@@ -38,6 +38,9 @@ int MiniMapBigY = Default_MiniMapBigY;
 int MiniMapSmallX = Default_MiniMapSmallX + 64;
 int MiniMapSmallY = Default_MiniMapSmallY;
 uint AutomapTransparency = Default_AutomapTransparency;
+// palette index the automap marks mana potions with. Alt+2 retunes it at runtime (see the CHEATS
+// block in Main.cpp) so colours can be tried out in game without a rebuild.
+uchar AutomapManaPotionColor = Default_AutomapManaPotionColor;
 
 void LoadMapConfig()
 {
@@ -605,7 +608,7 @@ void AutomapDrawItems()
 				if( item.ItemCode == IC_11_GOLD ) color = 147; // gold yellow
 				else if (is(item.MagicCode, MC_2_POTION_OF_FULL_HEALING, MC_3_POTION_OF_HEALING)) color = 139; // red healing pots
 				else if (is(item.MagicCode, MC_18_POTION_OF_REJUVENATION, MC_19_POTION_OF_FULL_REJUVENATION)) color = 176; // white holy waters
-				else if( is( item.MagicCode, MC_6_POTION_OF_MANA, MC_7_POTION_OF_FULL_MANA ) ) UserPotionB || GameMode == GM_CLASSIC ? color = 132 : color = 246; // mana pots blue or grey
+				else if( is( item.MagicCode, MC_6_POTION_OF_MANA, MC_7_POTION_OF_FULL_MANA ) ) color = AutomapManaPotionColor; // mana pots, palette index retunable in game with Alt+2
 				else if( item.MagicCode >= MC_10_ELIXIR_OF_STRENGTH && item.MagicCode <= MC_13_ELIXIR_OF_VITALITY || item.MagicCode == MC_44_SPECTRAL_ELIXIR ) color = 155; // эликсиры оранжевым как уники
 				else if( item.MagicCode >= MC_30_OIL_OF_SOMETHING && item.MagicCode <= MC_40_OIL_OF_HARDENING ) color = 152; // oils beige
 				AutomapDrawOneItem(x, y, color);

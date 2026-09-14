@@ -299,8 +299,12 @@ bool PerkAvailable( int playerIndex, int perkIndex, int perkLevel )
 		case PERK_ARCANE_MASTERY:
 		case PERK_CHAIN_LIGHTNING:
 		case PERK_MIND_OVER_MATTER:
-		case PERK_WILLPOWER:
-		case PERK_MASTER_CASTER:			available = !HasTrait(playerIndex, TraitId::Mamluk); break;
+		case PERK_WILLPOWER:				available = !HasTrait(playerIndex, TraitId::Mamluk); break;
+		// assassins stop at 2 points, Black Witchery carries them to 4
+		case PERK_MASTER_CASTER:			available = !HasTrait(playerIndex, TraitId::Mamluk)
+											&& ( player.fullClassId != PFC_ASSASSIN
+												|| perkLevel < 2
+												|| HasTrait(playerIndex, TraitId::Black_Witchery) ); break;
 		case PERK_GOLEM_RESISTANCE:
 		case PERK_EXTRA_GOLEMS:				available = !HasTrait(playerIndex, TraitId::Mamluk) && GameMode != GM_COLISEUM && MaxCountOfPlayersInGame == 1; break;
 		case PERK_FOOTWORK:

@@ -28,10 +28,10 @@ Perk SynergyPerks[] = {
 	} },
 
 	{ SYNERGY_SPELL_POWER, {"damage of all spell types::    gets increased by %i%%"}, "Spell Power", {// ok
-		{  6, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  2, PERK_MASTER_CASTER,  2}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  5 },
-		{ 13, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  5, PERK_MASTER_CASTER,  5}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 10 },
-		{ 21, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  7, PERK_MASTER_CASTER,  8}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 15 },
-		{ 28, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC, 10, PERK_MASTER_CASTER, 10}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 20 },
+		{  6, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  2, PERK_MASTER_CASTER, 1}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/,  5 },
+		{ 13, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  5, PERK_MASTER_CASTER, 2}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 10 },
+		{ 21, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC,  7, PERK_MASTER_CASTER, 3}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 15 },
+		{ 28, IPCM_MAGE | IPCM_WARLOCK | IPCM_ROGUE | IPCM_ASSASSIN, {PERK_GAIN_MAGIC, 10, PERK_MASTER_CASTER, 4}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 20 },
 	} },
 
 	{ SYNERGY_MINION_OFFENSE, {"damage of all minions::    gets increased by %i points"}, "Minion Offense", {//?
@@ -144,12 +144,12 @@ Perk SynergyPerks[] = {
 	} },
 
 	{ SYNERGY_IMPATIENCE, {"cooldown for nova spells::    reduced by %i seconds"}, "Impatience", {//ok
-		{ 24, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 6, PERK_MASTER_CASTER, 3}/*perk*/, {}/*spell*/, 0,0,120,0/*sdmv*/, 1 },
-		{ 31, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 8, PERK_MASTER_CASTER, 4}/*perk*/, {}/*spell*/, 0,0,170,0/*sdmv*/, 2 },
-		{ 37, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 10, PERK_MASTER_CASTER, 5}/*perk*/, {}/*spell*/, 0,0,220,0/*sdmv*/, 3 },
-		{ 43, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 11, PERK_MASTER_CASTER, 7}/*perk*/, {}/*spell*/, 0,0,270,0/*sdmv*/, 4 },
-		{ 49, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 13, PERK_MASTER_CASTER, 9}/*perk*/, {}/*spell*/, 0,0,320,0/*sdmv*/, 5 },
-		{ 55, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 15, PERK_MASTER_CASTER, 10}/*perk*/, {}/*spell*/, 0,0,370,0/*sdmv*/, 6 },
+		{ 24, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 6, PERK_MASTER_CASTER, 1}/*perk*/, {}/*spell*/, 0,0,120,0/*sdmv*/, 1 },
+		{ 31, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 8, PERK_MASTER_CASTER, 2}/*perk*/, {}/*spell*/, 0,0,170,0/*sdmv*/, 2 },
+		{ 37, IPCM_MAGE | IPCM_WARLOCK, {PERK_UNSTOPPABLE, 10, PERK_MASTER_CASTER, 3}/*perk*/, {}/*spell*/, 0,0,220,0/*sdmv*/, 3 },
+		{ 43, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 11, PERK_MASTER_CASTER, 4}/*perk*/, {}/*spell*/, 0,0,270,0/*sdmv*/, 4 },
+		{ 49, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 13, PERK_MASTER_CASTER, 5}/*perk*/, {}/*spell*/, 0,0,320,0/*sdmv*/, 5 },
+		{ 55, IPCM_WARLOCK, {PERK_UNSTOPPABLE, 15, PERK_MASTER_CASTER, 6}/*perk*/, {}/*spell*/, 0,0,370,0/*sdmv*/, 6 },
 	} },
 
 	{ SYNERGY_GLAD_DISCIPLINE, {"    weapon damage: +%i%%","    stun threshold: +%i","    armor class: -%i"}, "Gladiatorial Discipline", {//ok

@@ -8902,3 +8902,14 @@ enum MONSTER_AVIALABILITY
 	MA_CLASSIC = 2,
 	MA_ALL = -1,
 };
+
+// Master Caster lets mana be carried past its maximum; every further full bar of mana above max
+// fills the globe again in a darker tone. One colour translation table per tone, the deepest one
+// also covering everything beyond it (X\other\ManaOvfl.trn, ManaOvf2.trn, ManaOvf3.trn in
+// 13cirlces.MPQ - see tools\make_mana_overflow_trn.py).
+enum { ManaOverflowTones = 3 };
+
+// Palette index the automap marks mana potions with. The Alt+2 cheat overrides it at runtime from
+// the gold-split input so colours can be tried out in game; pressing it with that panel closed puts
+// this value back. See AutomapManaPotionColor in src\automap.cpp.
+enum { Default_AutomapManaPotionColor = 161 };

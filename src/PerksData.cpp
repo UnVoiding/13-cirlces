@@ -510,27 +510,21 @@ Perk Perks[PERKS_COUNT] = {
 		/*29*/ { 75, IPCM_ANY_WARRIOR | IPCM_SCOUT | IPCM_SHARPSHOOTER | IPCM_SAVAGE | IPCM_BERSERKER | IPCM_EXECUTIONER | IPCM_THRAEX, {}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 300 },
 	} },
 
-	{ PERK_MASTER_CASTER, {"    +%i%% chance to hit::with spells and flasks"}, "Master Caster", {// upgraded to clvl 150 limit
-		/* 0*/ {  4, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 20,0 /*sdmv*/,  10 },
-		/* 1*/ {  6, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 30,0 /*sdmv*/,  20 },
-		/* 2*/ {  8, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 40,0 /*sdmv*/,  30 },
-		/* 3*/ { 10, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 50,0 /*sdmv*/,  40 },
-		/* 4*/ { 12, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 60,0 /*sdmv*/,  50 },
-		/* 5*/ { 15, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 70,0 /*sdmv*/,  60 },
-		/* 6*/ { 18, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 80,0 /*sdmv*/,  70 },
-		/* 7*/ { 21, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 90,0 /*sdmv*/,  80 },
-		/* 8*/ { 24, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,100,0 /*sdmv*/,  90 },
-		/* 9*/ { 27, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,110,0 /*sdmv*/, 100 },
-		/*10*/ { 31, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,120,0 /*sdmv*/, 110 },
-		/*11*/ { 35, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,130,0 /*sdmv*/, 120 },
-		/*12*/ { 39, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,140,0 /*sdmv*/, 130 },
-		/*13*/ { 43, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,150,0 /*sdmv*/, 140 },
-		/*14*/ { 47, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,160,0 /*sdmv*/, 150 },
-		/*15*/ { 52, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,170,0 /*sdmv*/, 160 },
-		/*16*/ { 57, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,180,0 /*sdmv*/, 170 },
-		/*17*/ { 62, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,190,0 /*sdmv*/, 180 },
-		/*18*/ { 67, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,200,0 /*sdmv*/, 190 },
-		/*19*/ { 72, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0,210,0 /*sdmv*/, 200 },
+	// point caps by class: mages (mage/elementalist/warlock) 10, summoners 6, bombardier 4,
+	// assassin 2 (4 with Black Witchery - the trait gate lives in PerkAvailable), rogue 2, druid 2.
+	// value[1] is the mana overflow band: knowing the perk is what lets a character carry mana past
+	// his maximum at all, 25% of max per point (see ManaOverflowCap).
+	{ PERK_MASTER_CASTER, {"    +%i%% chance to hit::with spells and flasks", "    mana can be carried::    up to %i%% past its maximum"}, "Master Caster", {
+		/* 0*/ {  4, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 20,0 /*sdmv*/,  10,  25 },
+		/* 1*/ {  6, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 30,0 /*sdmv*/,  20,  50 },
+		/* 2*/ {  8, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 40,0 /*sdmv*/,  30,  75 },
+		/* 3*/ { 10, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 50,0 /*sdmv*/,  40, 100 },
+		/* 4*/ { 12, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 60,0 /*sdmv*/,  50, 125 },
+		/* 5*/ { 15, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 70,0 /*sdmv*/,  60, 150 },
+		/* 6*/ { 18, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 80,0 /*sdmv*/,  70, 175 }, 
+		/* 7*/ { 21, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 90,0 /*sdmv*/,  80, 200 },
+		/* 8*/ { 24, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0,100,0 /*sdmv*/,  90, 225 },
+		/* 9*/ { 27, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0,110,0 /*sdmv*/, 100, 250 },
 	} },
 
 	{ PERK_DODGER, {"    +%i to armor class"}, "Dodger", {// upgraded to clvl 150 limit

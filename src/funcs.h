@@ -65,7 +65,7 @@ void __fastcall InfoPanel_AddLine( const char *str, int centered, const char* st
 void  InfoPanel_ClearBody( );//	Panel		
 int __fastcall CopyFromMainPanelToWorkingSurface( int SrcX, int SrcY, int Width, int Height, int DstX, int DstY	);//	Panel
 void  BuildManaOverflowGlobe( );//	Panel
-void __fastcall DrawManaOverflowGlobe( int SrcX, int SrcY, int Width, int Height, int DstX, int DstY	);//	Panel
+void __fastcall DrawManaOverflowGlobe( int tone, int SrcX, int SrcY, int Width, int Height, int DstX, int DstY	);//	Panel
 void __fastcall DrawEmptyGlobeBottom( uchar *aMap88xNPtr, int aStartRow, int aEndRow, int aStartOffset, int aStartY	);//	Panel
 void __fastcall PutWithAlpha( uchar *aSrcSurface, int a2, int aSrcOffset, uchar *aDstSurface, int aDstOffset, int a6	);//	Panel
 void  DrawLifeGlobeTop( );//	Panel		
@@ -444,8 +444,6 @@ void __fastcall GameplayOptions2MenuHandler(int a1, int a2);
 void __fastcall VisualOptions1MenuHandler(int a1, int a2);
 void __fastcall VisualOptions2MenuHandler(int a1, int a2);
 void __fastcall VisualOptions3MenuHandler(int a1, int a2);
-void __fastcall PanelHandler(int a1, int a2);
-void __fastcall PotionHandler(int a1, int a2);
 void __fastcall MapblendHandler(int a1, int a2);
 void __fastcall ShowNumbersOnHealthHandler(int a1, int a2);
 void __fastcall ShowNumbersOnManaHandler(int a1, int a2);
@@ -2319,19 +2317,31 @@ int GetTraitSpellIcon( TraitId id );
 template<typename... T> __forceinline bool HasTrait(uint playerIndex, T&&... val){ return playerIndex > 3 ? false : has(Players[playerIndex].traits, val...); }
 template<typename... T> __forceinline bool CurTrait(T&&... val){ return has(Players[CurrentPlayerIndex].traits, val...); }
 
-// Mage, Elementalist, Demonologist, Necromancer, Beastmaster, Warlock: the classes tagged "MAGE" in PFC_ enum
-__forceinline bool IsMageArchetype(int fullClassId){ return is(fullClassId, PFC_MAGE, PFC_ELEMENTALIST, PFC_DEMONOLOGIST, PFC_NECROMANCER, PFC_BEASTMASTER, PFC_WARLOCK); }
-// mage-archetype classes can be topped up past their max mana (by potions/mana charges/magi charges, not by natural regen) up to 2x max
-__forceinline int ManaOverflowCap(const Player& player){ return IsMageArchetype(player.fullClassId) ? player.MaxCurMana * 2 : player.MaxCurMana; }
+// Mana overflow is Master Caster's second effect: how far past his maximum a character may carry mana,
+// in percent of max (25% per point). Without the perk there is no overflow band at all, so every class
+// that can learn the perk can overflow and no other class can.
+__forceinline int ManaOverflowPercent(int playerIndex){ return PerkValue(PERK_MASTER_CASTER, playerIndex, 1); }
+// the highest CurMana a character may hold. Mana is pushed into the overflow band by potions/mana charges/magi charges, never by natural regen
+__forceinline int ManaOverflowCap(int playerIndex){ const Player& player = Players[playerIndex]; return player.MaxCurMana + player.MaxCurMana * ManaOverflowPercent(playerIndex) / 100; }
 // for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
-__forceinline int ManaCapNoNewOverflow(int preEffectCurMana, const Player& player){ return (IsMageArchetype(player.fullClassId) && preEffectCurMana > player.MaxCurMana) ? preEffectCurMana : player.MaxCurMana; }
+__forceinline int ManaCapNoNewOverflow(int preEffectCurMana, int playerIndex){ const Player& player = Players[playerIndex]; return preEffectCurMana > player.MaxCurMana ? preEffectCurMana : player.MaxCurMana; }
 // the mana globe area of the main panel, which the 88x88 bulb graphics (and the overflow globe built from them) line up with
 enum { ManaGlobeLeft = 464, ManaGlobeWidth = 88, ManaGlobeHeight = 88, ManaGlobeImageSize = ManaGlobeWidth * ManaGlobeHeight };
-// how much of the globe (on the same 0-80 scale as the normal fill ratio) the overflow fill should cover, rising from the
-// bottom of the globe as mana climbs from 100% to the 200%-of-max overflow cap; 0 once mana is back at/below max
+// how many times the globe has been filled on top of the first: 0 at/below max mana, 1 somewhere in the first bar of
+// overflow, 2 in the second, 3 in the third. Each bar is painted in its own, darker tone, and we have no tone past the
+// last one, so deeper overflow than that just keeps the deepest tone.
+__forceinline int ManaOverflowFills(const Player& player){
+	if( player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
+	int fills = (player.CurMana - 1) / player.MaxCurMana;
+	return fills > ManaOverflowTones ? (int)ManaOverflowTones : fills;
+}
+// how much of the globe (on the same 0-80 scale as the normal fill ratio) the topmost overflow filling covers, rising
+// from the bottom of the globe as mana climbs through the bar it is in; 0 once mana is back at/below max. Can come out
+// above 80 once the fills are capped, which just means "the deepest tone fills the globe" - callers clamp it.
 __forceinline int ManaOverflowFillRatio(const Player& player){
-	if( !IsMageArchetype(player.fullClassId) || player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
-	return ftol( double(player.CurMana - player.MaxCurMana) / double(player.MaxCurMana) * 80.0 );
+	int fills = ManaOverflowFills(player);
+	if( !fills ) return 0;
+	return ftol( double(player.CurMana - fills * player.MaxCurMana) / double(player.MaxCurMana) * 80.0 );
 }
 
 bool IsMonsterImmuneToMissile(int monsterIndex, int damageType, int playerIndex);

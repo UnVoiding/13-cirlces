@@ -85,11 +85,12 @@ Then launch `TH4.exe` directly or via the VS debugger.
 ## 13cirlces.MPQ — the mod's own interface assets
 
 `13cirlces.MPQ` holds graphics assets authored for the mod itself (currently
-`X\other\ManaOvfl.trn`, the darker tone the mana globe is filled with a second time when a
-mage's mana goes above his maximum). The game opens it next to `diabdat.mpq`, at a higher
-priority than every other archive, so anything in it wins over the stock data. The game
-still runs without it — features that need one of its assets just fall back to their plain
-look.
+`X\other\ManaOvfl.trn`, `ManaOvf2.trn` and `ManaOvf3.trn`, the progressively darker tones
+the mana globe is refilled in when a Master Caster's mana goes above his maximum — one per
+full bar of overflow, so 100-200%, 200-300% and 300%+ of max). The game opens it next to
+`diabdat.mpq`, at a higher priority than every other archive, so anything in it wins over
+the stock data. The game still runs without it — features that need one of its assets just
+fall back to their plain look.
 
 The loose source files live under `res\13cirlces\`, laid out exactly as they sit inside the
 archive. To repack it after changing one of them:
@@ -98,17 +99,27 @@ archive. To repack it after changing one of them:
 python tools\make_mpq.py res\13cirlces <GameFolder>\13cirlces.MPQ
 ```
 
-`X\other\ManaOvfl.trn` itself is generated from a game palette (any level palette will do -
-entries 128..255, the only ones the panel graphics use, are the same in all of them):
+The three `ManaOvfl*.trn` tables are all generated in one go from a game palette (any level
+palette will do - entries 128..255, the only ones the panel graphics use, are the same in
+all of them):
 
 ```
 tools\build_mpq_tools.bat
 tools\mpq_extract.exe <GameFolder>\TH4data.mor . Levels\TownData\Town.pal
-python tools\make_mana_overflow_trn.py Town.pal res\13cirlces\X\other\ManaOvfl.trn
+python tools\make_mana_overflow_trn.py Town.pal res\13cirlces\X\other
 ```
 
-Passing `make_mana_overflow_trn.py` an output directory and one or more panel `.cel` files
-after that additionally renders PNG previews of how the darker filling will look.
+Passing `make_mana_overflow_trn.py` a preview directory and one or more panel `.cel` files
+after that additionally renders PNG previews of how each filling will look — one per
+overflow bar and fill level. The panel `.cel`s come out of `TH4data.mor`
+(`CtrlPan\front_panel_mana_black.cel`, `front_panel_mana_blue.cel`) and the empty globe
+they are compared against out of `DIABDAT.MPQ` (`CtrlPan\P8Bulbs.CEL`).
+
+How dark each tone is lives in the `TONES` table at the top of that script. Note that both
+panels' globes are already very dark artwork (mean liquid luminance 17 and 9 out of 255),
+so plain darkening has almost no headroom past the first tone; the deeper two therefore
+also shift hue — cold blue at 200%+, red at 300%+ — which is what actually makes them tell
+apart on screen.
 
 ---
 
