@@ -92,6 +92,21 @@ full bar of overflow, so 100-200%, 200-300% and 300%+ of max). The game opens it
 the stock data. The game still runs without it — features that need one of its assets just
 fall back to their plain look.
 
+It also carries `X\panel\front_panel_mana_blue.cel` — the mod's main panel with Diablo's
+original mana globe colours painted back into it. The mod's own art (`TH4data.mor`,
+`CtrlPan\front_panel_mana_blue.cel`) repaints the liquid into the palette's pure blue ramp
+(indices 133/134/135), which reads brighter and flatter than the original's desaturated
+blue-grey (188..191). Only those 1751 pixels differ; the rest of the panel is untouched.
+`MayBeViewInit` in `src\Panel.cpp` prefers this copy and falls back to the stock panel when
+the archive is missing. Regenerate it with:
+
+```
+tools\mpq_extract.exe <GameFolder>\DIABDAT.MPQ . CtrlPan\Panel8.cel
+tools\mpq_extract.exe <GameFolder>\TH4data.mor . CtrlPan\front_panel_mana_blue.cel
+python tools\make_mana_globe_cel.py Panel8.cel front_panel_mana_blue.cel ^
+    res\13cirlces\X\panel\front_panel_mana_blue.cel
+```
+
 The loose source files live under `res\13cirlces\`, laid out exactly as they sit inside the
 archive. To repack it after changing one of them:
 

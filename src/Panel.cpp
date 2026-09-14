@@ -5,6 +5,11 @@ const int DAMAGED_ITEMS_PICS_HEIGHT = 32;
 const int DAMAGED_ITEMS_PICS_INDENT = 8;
 const int DAMAGED_ITEMS_PICS_INDENT_FROM_RIGHT = 12;
 
+// The mod's main panel, with Diablo's original mana globe colours painted back into it, out of
+// 13cirlces.MPQ. Optional: MayBeViewInit falls back to the stock CtrlPan\front_panel_mana_blue.cel
+// when the archive is not there. Authored by tools\make_mana_globe_cel.py.
+static const char ModManaGlobePanelCel[] = "X\\panel\\front_panel_mana_blue.cel";
+
 // th2
 int InfoLineYOffsets[5][5] = {// переработаный ориганальный массив офсетов. меняется только y
 	{0,									0,0,0,0},
@@ -1034,7 +1039,20 @@ void MayBeViewInit()
 	Data_SpelIconCEL   = (char*)LoadFile(GameMode == GM_CLASSIC ? "Data\\SpelIconOL.CEL" : "Data\\SpelIcon.CEL");
 	Data_SpelIconCEL_2 = (char*)LoadFile(GameMode != GM_CLASSIC ? "Data\\SpelIconOL.CEL" : "Data\\SpelIcon.CEL");
 	DrawSpellColor(0);
-	char* currentCELFilePtr = (char*) LoadFile( (char*)("CtrlPan\\"s + (GameMode == GM_CLASSIC ? "panel8" : "front_panel_mana_blue") + ".cel").c_str() );
+	// The mod's own panel art repaints the mana liquid in the palette's pure blue ramp, which comes
+	// out brighter and flatter than Diablo's globe. 13cirlces.MPQ carries a copy of that panel with
+	// the original, desaturated globe painted back into it (tools\make_mana_globe_cel.py); nothing
+	// else in the panel differs. Without the archive we fall back to the stock art and the globe
+	// simply keeps its brighter look.
+	const char* panelName = GameMode == GM_CLASSIC ? "CtrlPan\\panel8.cel" : "CtrlPan\\front_panel_mana_blue.cel";
+	if( GameMode != GM_CLASSIC ){
+		HANDLE modPanel;
+		if( File_Open(ModManaGlobePanelCel, &modPanel, ONE_TRY) ){
+			File_Close(modPanel);
+			panelName = ModManaGlobePanelCel;
+		}
+	}
+	char* currentCELFilePtr = (char*) LoadFile( panelName );
 	ParseCELFile(MainPanelImage, 0, 143, GUI_Width, currentCELFilePtr, 1, GUI_Width );
 	FreeMemZero(currentCELFilePtr);
 	// Globes
