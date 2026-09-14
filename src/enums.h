@@ -8909,7 +8909,8 @@ enum MONSTER_AVIALABILITY
 // 13cirlces.MPQ - see tools\make_mana_overflow_trn.py).
 enum { ManaOverflowTones = 3 };
 
-// Palette index the automap marks mana potions with. The Alt+2 cheat overrides it at runtime from
-// the gold-split input so colours can be tried out in game; pressing it with that panel closed puts
-// this value back. See AutomapManaPotionColor in src\automap.cpp.
-enum { Default_AutomapManaPotionColor = 161 };
+// Palette index the automap marks mana potions with - 128 is (159,159,255), the pale top of the
+// palette's blue ramp. This is what the automap actually draws with; the Alt+2 cheat still writes
+// AutomapManaPotionColor (src\automap.cpp) but nothing reads it at the moment - point the draw in
+// AutomapDrawItems back at that variable to make the cheat live again.
+enum { Default_AutomapManaPotionColor = 128 };

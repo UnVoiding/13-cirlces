@@ -723,7 +723,7 @@ extern HANDLE CurSpeechHandle;//
 extern Sound* CurSpeechSound;//	
 extern uint HashSource[5][256];//	
 extern uchar AutomapCurrentDrawColor;//
-extern uchar AutomapManaPotionColor;// palette index for mana potions on the automap, retunable with the Alt+2 cheat
+extern uchar AutomapManaPotionColor;// what the Alt+2 cheat sets; nothing reads it right now, see automap.cpp
 extern int AutomapRotated;//	
 extern int LastSeed;//	
 extern u64 LastSeed64;//	
