@@ -5,10 +5,15 @@ const int DAMAGED_ITEMS_PICS_HEIGHT = 32;
 const int DAMAGED_ITEMS_PICS_INDENT = 8;
 const int DAMAGED_ITEMS_PICS_INDENT_FROM_RIGHT = 12;
 
-// The mod's main panel, with Diablo's original mana globe colours painted back into it, out of
-// 13cirlces.MPQ. Optional: MayBeViewInit falls back to the stock CtrlPan\front_panel_mana_blue.cel
-// when the archive is not there. Authored by tools\make_mana_globe_cel.py.
-static const char ModManaGlobePanelCel[] = "X\\panel\\front_panel_mana_blue.cel";
+// The mod's main panel with a reworked mana globe, out of 13cirlces.MPQ. Two are on offer; point
+// ModManaGlobePanelCel at whichever one should be used:
+//   front_panel_mana_blue.cel   Diablo's original globe colours, painted back in pixel by pixel
+//                               (tools\make_mana_globe_cel.py)
+//   front_panel_mana_stars.cel  a smooth, more uniform body with the scattered bright bubbles the
+//                               mana potion sprites have (tools\make_mana_globe_stars_cel.py)
+// Both are optional: MayBeViewInit falls back to the stock CtrlPan\front_panel_mana_blue.cel when
+// the archive, or the chosen file in it, is not there.
+static const char ModManaGlobePanelCel[] = "X\\panel\\front_panel_mana_stars.cel";
 
 // th2
 int InfoLineYOffsets[5][5] = {// переработаный ориганальный массив офсетов. меняется только y
