@@ -67,6 +67,17 @@ def collect(source_dir):
     return entries
 
 
+def listfile(entries):
+    """The archive's own table of contents, under the conventional name '(listfile)'.
+
+    An MPQ stores only the *hash* of each file name, so without this an archive cannot be
+    enumerated at all - a tool can check whether a name it already knows is present, but it can
+    never recover the names.  One path per line, backslash separated, CRLF terminated, which is
+    what every MPQ tool expects.  The listfile does not name itself; readers know to look for it.
+    """
+    return ('\r\n'.join(name for name, _data in entries) + '\r\n').encode('ascii')
+
+
 def build(entries):
     if len(entries) > HASH_TABLE_SIZE:
         raise SystemExit('too many files for a %d entry hash table' % HASH_TABLE_SIZE)
@@ -109,6 +120,7 @@ def main():
     if not entries:
         print('no files found under %s' % sys.argv[1])
         return 1
+    entries.append(('(listfile)', listfile(entries)))
     open(sys.argv[2], 'wb').write(build(entries))
     print('wrote %s' % sys.argv[2])
     for name, data in entries:

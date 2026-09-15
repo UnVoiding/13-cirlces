@@ -2327,6 +2327,13 @@ __forceinline int ManaOverflowCap(int playerIndex){ const Player& player = Playe
 __forceinline int ManaCapNoNewOverflow(int preEffectCurMana, int playerIndex){ const Player& player = Players[playerIndex]; return preEffectCurMana > player.MaxCurMana ? preEffectCurMana : player.MaxCurMana; }
 // the mana globe area of the main panel, which the 88x88 bulb graphics (and the overflow globe built from them) line up with
 enum { ManaGlobeLeft = 464, ManaGlobeWidth = 88, ManaGlobeHeight = 88, ManaGlobeImageSize = ManaGlobeWidth * ManaGlobeHeight };
+// The overflow fillings cover one column more than the globe the engine fills. The panel art's
+// globe is 89 px wide - column 463 carries its left rim for rows 41..51 - but the empty bulb
+// graphic and the normal fill are both 88 and start at 464. That costs the normal globe nothing,
+// since the column is blue there and so is the liquid, but an overflow filling stopping at 464
+// leaves a blue sliver down the left of itself.
+enum { ManaOverflowGlobeLeft = ManaGlobeLeft - 1, ManaOverflowGlobeWidth = ManaGlobeWidth + 1,
+       ManaOverflowGlobeImageSize = ManaOverflowGlobeWidth * ManaGlobeHeight };
 // how many times the globe has been filled on top of the first: 0 at/below max mana, 1 somewhere in the first bar of
 // overflow, 2 in the second, 3 in the third. Each bar is painted in its own, darker tone, and we have no tone past the
 // last one, so deeper overflow than that just keeps the deepest tone.

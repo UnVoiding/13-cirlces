@@ -107,6 +107,33 @@ python tools\make_mana_globe_cel.py Panel8.cel front_panel_mana_blue.cel ^
     res\13cirlces\X\panel\front_panel_mana_blue.cel
 ```
 
+### The overflow globes
+
+Each bar of mana carried above maximum refills the globe in a liquid of its own, and each of those
+is a painted globe in the archive rather than a recolour of the main one:
+
+| File | Overflow | Liquid | Sparkles |
+|---|---|---|---|
+| `X\panel\front_panel_mana_ovf1.cel` | 100-200% | midnight, the main blue sinking into dark blue-grey | the main globe's 12, plus 3 |
+| `X\panel\front_panel_mana_ovf2.cel` | 200-300% | bright azure, the blue made lighter and glowing, with a bright glass rim on the lower left (its own `light` in `TONES`) | those 15, plus 3 |
+| `X\panel\front_panel_mana_ovf3.cel` | 300-400% | gold, as the rejuvenation potion, with a soft halo rim all round the glass (its own `light`) | those 18, plus 3 |
+
+The sparkles are cumulative and land in identical places at every level, so the globe reads as the
+same liquid gaining more of them rather than as three unrelated pictures. `MayBeViewInit` cuts the
+globe out of each panel with the same liquid mask `BuildManaOverflowGlobe` uses; a missing file
+falls back to the old `.trn` recolour. Regenerate all three with:
+
+```
+python tools\paint_mana_overflow_cels.py <panel.cel> P8Bulbs.CEL Town.pal ^
+    res\13cirlces\X\panel  [png-output-dir]
+```
+
+Note that entries 128-255 contain **no in-between hues** — no violet, green or cyan. A colour that
+falls between ramps is mixed on screen instead: the quantiser in that script searches every *pair*
+of candidate entries for the blend nearest the target and dithers between the two. Midnight
+uses it to sink the blue ramp into the dark blue-grey. The first level used to be a violet dithered from blue and red, but that read as
+noise next to the blue globe, so it is now the blue sinking into dark blue-grey.
+
 The loose source files live under `res\13cirlces\`, laid out exactly as they sit inside the
 archive. To repack it after changing one of them:
 

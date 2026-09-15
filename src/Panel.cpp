@@ -15,6 +15,19 @@ const int DAMAGED_ITEMS_PICS_INDENT_FROM_RIGHT = 12;
 // the archive, or the chosen file in it, is not there.
 static const char ModManaGlobePanelCel[] = "X\\panel\\front_panel_mana_stars.cel";
 
+// One globe per bar of mana carried above maximum, out of the same archive and painted by
+// tools\paint_mana_overflow_cels.py: a midnight blue for 100-200%, a bright
+// glowing azure for 200-300%, and the gold of a rejuvenation potion for 300-400%. Each keeps
+// every sparkle of the bar below it and adds three of its own, so a glance at the globe tells you
+// how deep into overflow you are. Optional, like the panel above - a missing one falls back to the
+// old .trn recolour of the main globe.
+static const char* const ModManaOverflowPanelCel[ManaOverflowTones] = {
+	"X\\panel\\front_panel_mana_ovf1.cel",
+	"X\\panel\\front_panel_mana_ovf2.cel",
+	"X\\panel\\front_panel_mana_ovf3.cel",
+};
+bool ManaOverflowGlobeFromPanel[ManaOverflowTones];
+
 // th2
 int InfoLineYOffsets[5][5] = {// переработаный ориганальный массив офсетов. меняется только y
 	{0,									0,0,0,0},
@@ -731,10 +744,97 @@ int __fastcall CopyFromMainPanelToWorkingSurface(int SrcX, int SrcY, int Width, 
 	return result;
 }
 
-// Prepares the darker fillings of the mana globe. A Master Caster can hold more mana than his
-// maximum, and every further full bar of mana above max fills the globe again in a darker tone -
-// the very same globe artwork, just recolored through X\other\ManaOvfl.trn, ManaOvf2.trn and
-// ManaOvf3.trn (13cirlces.MPQ), one per overflow bar.
+// The palette's blue ramp, which the mana liquid of the panel art is painted in.
+enum { ManaLiquidFirstColor = 128, ManaLiquidLastColor = 135 };
+
+static bool IsManaGlobeBlue(int i)
+{
+	uchar pixel = MainPanelImage[ManaOverflowGlobeLeft + i % ManaOverflowGlobeWidth + GUI_Width * (i / ManaOverflowGlobeWidth)];
+	return pixel >= ManaLiquidFirstColor && pixel <= ManaLiquidLastColor;
+}
+
+// Which pixels of the overflow window belong to the round globe rather than to the stone frame in its
+// corners. "Differs from the empty bulb" cannot tell them apart: P8Bulbs.CEL carries the frame of
+// Diablo's own panel, and wherever this panel's frame differs from it - most of the bottom right corner -
+// that test calls the frame liquid as well. Diablo has the flaw too, only milder: that corner flips
+// between the two frames as the globe drains.
+// So the shape is taken from the liquid itself: the largest connected patch of blue on the panel, widened
+// to everything lying between its outermost pixels both along the row and along the column. That closes
+// the holes the sparkles and the figure at the bottom leave in the blue, while stray blue specks in the
+// frame stay outside.
+static bool ManaGlobeShape[ManaOverflowGlobeImageSize];
+static void BuildManaGlobeShape()
+{
+	enum { W = ManaOverflowGlobeWidth, H = ManaGlobeHeight, N = ManaOverflowGlobeImageSize };
+	static int patch[N];
+	static int pending[N];
+	memset(patch, 0, sizeof patch);
+	int patches = 0, globePatch = 0, globeSize = 0;
+	for( int start = 0; start < N; start++ ){
+		if( patch[start] || !IsManaGlobeBlue(start) ) continue;
+		patch[start] = ++patches;
+		int size = 0, count = 0;
+		pending[count++] = start;
+		while( count ){
+			int i = pending[--count];
+			size++;
+			int x = i % W;
+			int next[4] = { x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, i - W, i + W };
+			for( int k = 0; k < 4; k++ ){
+				int n = next[k];
+				if( n < 0 || n >= N || patch[n] || !IsManaGlobeBlue(n) ) continue;
+				patch[n] = patches;
+				pending[count++] = n;
+			}
+		}
+		if( size > globeSize ){
+			globePatch = patches;
+			globeSize = size;
+		}
+	}
+	int rowFirst[H], rowLast[H], columnFirst[W], columnLast[W];
+	for( int y = 0; y < H; y++ ){ rowFirst[y] = W; rowLast[y] = -1; }
+	for( int x = 0; x < W; x++ ){ columnFirst[x] = H; columnLast[x] = -1; }
+	for( int y = 0; y < H; y++ ){
+		for( int x = 0; x < W; x++ ){
+			if( patch[W * y + x] != globePatch ) continue;
+			if( rowLast[y] < 0 ) rowFirst[y] = x;
+			rowLast[y] = x;
+			if( columnLast[x] < 0 ) columnFirst[x] = y;
+			columnLast[x] = y;
+		}
+	}
+	// Panel art with no globe of blue liquid to find keeps the whole window, as it was before, rather
+	// than a globe cut down to some speck.
+	bool found = globeSize >= N / 4;
+	for( int y = 0; y < H; y++ ){
+		for( int x = 0; x < W; x++ ){
+			ManaGlobeShape[W * y + x] = !found
+				|| ( x >= rowFirst[y] && x <= rowLast[y] && y >= columnFirst[x] && y <= columnLast[x] );
+		}
+	}
+}
+
+// Gives the empty mana bulb the panel's own frame around the globe. DrawManaGlobeBottom paints the drained
+// part of the globe from P8Bulbs.CEL and the rest from the panel, whole 88 px rows of each, so wherever the
+// two frames disagree (see BuildManaGlobeShape) the corner changed with the mana level. Only the rows inside
+// the panel are touched: above them the bulb is the glass rising over the panel, drawn by DrawManaGlobeTop.
+static void MatchEmptyManaGlobeFrameToPanel()
+{
+	for( int y = 16; y < ManaGlobeHeight; y++ ){
+		for( int x = 0; x < ManaGlobeWidth; x++ ){
+			if( ManaGlobeShape[ManaOverflowGlobeWidth * y + x + 1] ) continue;
+			ManaShereImage[ManaGlobeWidth * y + x] = MainPanelImage[ManaGlobeLeft + x + GUI_Width * y];
+		}
+	}
+}
+
+// Prepares the fillings of the mana globe above maximum. A Master Caster can hold more mana than
+// his maximum, and every further full bar of mana above max fills the globe again in another
+// liquid. Each of those is a globe of its own in 13cirlces.MPQ (X\panel\front_panel_mana_ovf1..3,
+// midnight then bright azure then gold) and is loaded straight into ManaOverflowGlobeImage by
+// MayBeViewInit. This function only fills in the tones that have no globe of their own, by
+// recoloring the main one through X\other\ManaOvfl.trn, ManaOvf2.trn and ManaOvf3.trn.
 // A pixel belongs to the liquid exactly where the full globe on the main panel differs from the
 // empty globe bulb graphic; every other pixel is left 0, which DrawManaOverflowGlobe treats as
 // transparent. That mask is what matters: simply recoloring the whole globe rectangle would repaint
@@ -743,12 +843,16 @@ void BuildManaOverflowGlobe()
 {
 	for( int tone = 0; tone < ManaOverflowTones; tone++ ){
 		if( !ManaOverflowGlobeImage[tone] ) continue;
-		memset(ManaOverflowGlobeImage[tone], 0, ManaGlobeImageSize);
+		if( ManaOverflowGlobeFromPanel[tone] ) continue;// this one is a globe of its own, already loaded
+		memset(ManaOverflowGlobeImage[tone], 0, ManaOverflowGlobeImageSize);
 		for( int y = 0; y < ManaGlobeHeight; y++ ){
-			for( int x = 0; x < ManaGlobeWidth; x++ ){
-				uchar liquid = MainPanelImage[ManaGlobeLeft + x + GUI_Width * y];
-				if( liquid && liquid != ManaShereImage[ManaGlobeWidth * y + x] ){
-					ManaOverflowGlobeImage[tone][ManaGlobeWidth * y + x] = ManaOverflowColors[tone][liquid];
+			// x is an offset from ManaOverflowGlobeLeft, so x - 1 indexes the 88 wide bulb. The
+			// extra rim column has no bulb pixel to compare against, so this path leaves it out
+			// and keeps behaving exactly as it did before.
+			for( int x = 1; x < ManaOverflowGlobeWidth; x++ ){
+				uchar liquid = MainPanelImage[ManaOverflowGlobeLeft + x + GUI_Width * y];
+				if( ManaGlobeShape[ManaOverflowGlobeWidth * y + x] && liquid && liquid != ManaShereImage[ManaGlobeWidth * y + x - 1] ){
+					ManaOverflowGlobeImage[tone][ManaOverflowGlobeWidth * y + x] = ManaOverflowColors[tone][liquid];
 				}
 			}
 		}
@@ -770,8 +874,8 @@ void __fastcall DrawManaOverflowGlobe(int tone, int SrcX, int SrcY, int Width, i
 	int DstHeight = ScreenHeight + 192;
 	for( int y = 0; (y < Height) && (y + SrcY < ManaGlobeHeight) && (y + DstY < DstHeight); y++ ){
 		if( y + SrcY >= 0 && y + DstY >= 0 ){
-			for( int x = 0; (x < Width) && (x + SrcX < ManaGlobeWidth) && (x + DstX < DstWidth); x++ ){
-				uchar pixel = globe[SrcX + x + ManaGlobeWidth * (SrcY + y)];
+			for( int x = 0; (x < Width) && (x + SrcX < ManaOverflowGlobeWidth) && (x + DstX < DstWidth); x++ ){
+				uchar pixel = globe[SrcX + x + ManaOverflowGlobeWidth * (SrcY + y)];
 				if( pixel ){
 					WorkingSurface[DstX + x + DstWidth * (DstY + y)] = pixel;
 				}
@@ -787,15 +891,21 @@ static void DrawManaOverflowGlobeTop(int tone, int ratio)
 {
 	if( ratio <= 69 ) return;
 	int height = 80 - ratio + 2;
-	DrawManaOverflowGlobe(tone, 475 - ManaGlobeLeft, height + 3, 59, 13 - height, 475 + Screen_LeftBorder, 499 + height);
+	DrawManaOverflowGlobe(tone, 475 - ManaOverflowGlobeLeft, height + 3, 59, 13 - height, 475 + Screen_LeftBorder, 499 + height);
 }
 
 // The piece of an overflow filling that sits inside the panel, rising from the bottom of the globe.
+// The normal globe is drawn the same way (see DrawManaGlobeBottom) but stops at row 84, because the
+// last three rows of its liquid are already on screen: they are part of the panel art that was
+// blitted underneath. An overflow filling has no such luxury - whatever it does not paint keeps
+// showing the blue globe below it - so it runs three rows further, down to the bottom of the globe.
+// The liquid rises from the bottom, so those rows belong to the first bar to fill in any case.
+enum { ManaGlobeBottomRows = 3 };
 static void DrawManaOverflowGlobeBottom(int tone, int ratio)
 {
 	if( ratio <= 0 ) return;
 	LimitToMax(ratio, 69);
-	DrawManaOverflowGlobe(tone, 0, 85 - ratio, ManaGlobeWidth, ratio, ManaGlobeLeft + Screen_LeftBorder, 581 - ratio);
+	DrawManaOverflowGlobe(tone, 0, 85 - ratio, ManaOverflowGlobeWidth, ratio + ManaGlobeBottomRows, ManaOverflowGlobeLeft + Screen_LeftBorder, 581 - ratio);
 }
 
 //----- (004045FC) -------------------------------------------------------- interface
@@ -1012,8 +1122,8 @@ void MayBeViewInit()
 	LifeShereImage = (uchar*)AllocMem(7744); // 88 * 88
 	memset( LifeShereImage, 0, 7744);
 	for( int tone = 0; tone < ManaOverflowTones; tone++ ){ // the darker fillings of the mana globe, one per overflow bar
-		ManaOverflowGlobeImage[tone] = (uchar*)AllocMem(ManaGlobeImageSize);
-		memset( ManaOverflowGlobeImage[tone], 0, ManaGlobeImageSize);
+		ManaOverflowGlobeImage[tone] = (uchar*)AllocMem(ManaOverflowGlobeImageSize);
+		memset( ManaOverflowGlobeImage[tone], 0, ManaOverflowGlobeImageSize);
 	}
 	FontSpriteSmall = (char*)LoadFile("CtrlPan\\SmalText.CEL");
 	Monster_Bar_Border = (char*)LoadFile("data\\monsterbar\\status_bar_border.CEL");
@@ -1065,6 +1175,8 @@ void MayBeViewInit()
 	ParseCELFile(LifeShereImage, 0, 87, 88, currentCELFilePtr, 1, 88);
 	ParseCELFile(ManaShereImage, 0, 87, 88, currentCELFilePtr, 2, 88);
 	FreeMemZero(currentCELFilePtr);
+	BuildManaGlobeShape();
+	MatchEmptyManaGlobeFrameToPanel();
 	// darker tones of the mana globe, one per bar of mana above max (13cirlces.MPQ). Without the archive
 	// a table stays an identity one and that filling simply looks like the normal liquid.
 	const char* manaOverflowTrnName[ManaOverflowTones] = { "X\\other\\ManaOvfl.trn", "X\\other\\ManaOvf2.trn", "X\\other\\ManaOvf3.trn" };
@@ -1075,6 +1187,43 @@ void MayBeViewInit()
 			File_Read(manaOverflowTrn, ManaOverflowColors[tone], 256);
 			File_Close(manaOverflowTrn);
 		}
+	}
+	// Each bar of mana above maximum has a globe painted for it rather than a recolour of the main
+	// one: midnight blue, then a bright, glowing azure, then the gold of a rejuvenation
+	// potion, each carrying three more sparkles than the bar below it. They are whole panels, so the
+	// globe is cut out of each the same way BuildManaOverflowGlobe cuts it out of the main panel -
+	// a pixel counts as liquid exactly where it differs from the empty bulb. A tone whose panel is
+	// missing keeps the .trn recolour above.
+	for( int tone = 0; tone < ManaOverflowTones; tone++ ){
+		ManaOverflowGlobeFromPanel[tone] = false;
+		HANDLE overflowPanelFile;
+		if( !ManaOverflowGlobeImage[tone] ) continue;
+		if( !File_Open(ModManaOverflowPanelCel[tone], &overflowPanelFile, ONE_TRY) ) continue;
+		File_Close(overflowPanelFile);
+		uchar* overflowPanel = (uchar*)AllocMem(144 * GUI_Width);
+		memset(overflowPanel, 0, 144 * GUI_Width);
+		currentCELFilePtr = (char*)LoadFile(ModManaOverflowPanelCel[tone]);
+		ParseCELFile(overflowPanel, 0, 143, GUI_Width, currentCELFilePtr, 1, GUI_Width);
+		FreeMemZero(currentCELFilePtr);
+		for( int y = 0; y < ManaGlobeHeight; y++ ){
+			for( int x = 0; x < ManaOverflowGlobeWidth; x++ ){
+				int panelAt = ManaOverflowGlobeLeft + x + GUI_Width * y;
+				uchar liquid = overflowPanel[panelAt];
+				// Liquid where the painted globe differs from the empty bulb, as everywhere else,
+				// but also anywhere it merely differs from the panel underneath it. The painter
+				// covers every pixel of the globe including the few whose colour happens to equal
+				// the bulb's, and those would otherwise be dropped and show the blue globe through.
+				// The extra rim column has no bulb pixel at all, so only the second test applies.
+				// Either way only inside the round globe: outside it the painter used to repaint the
+				// frame corner as well, which showed as a square of liquid (BuildManaGlobeShape).
+				bool isLiquid = ManaGlobeShape[ManaOverflowGlobeWidth * y + x] && liquid != 0
+					&& ( liquid != MainPanelImage[panelAt]
+						|| ( x > 0 && liquid != ManaShereImage[ManaGlobeWidth * y + x - 1] ) );
+				ManaOverflowGlobeImage[tone][ManaOverflowGlobeWidth * y + x] = isLiquid ? liquid : 0;
+			}
+		}
+		FreeMemZero(overflowPanel);
+		ManaOverflowGlobeFromPanel[tone] = true;
 	}
 	BuildManaOverflowGlobe();
 	TalkPanelMode = 0;

@@ -96,6 +96,15 @@ STAR_LEVELS = [128, 129, 130, 131, 132, 133]
 STAR_CORE = [(0, 0.30), (1, 0.45), (2, 0.25)]   # index into STAR_LEVELS for the core -> share
 
 REPAINT_BODY = True     # False leaves the liquid alone and only lays the sparkles over it
+# Adding a few sparkles to a globe that already has some: STAR_LIMIT stops after that many have
+# been placed (0 = no limit) and STAR_EXCLUDE lists (y, x) centres the new ones must keep away
+# from, so a second pass lands in the gaps of the first rather than on top of it.  Cells are
+# visited in a fixed order, so "the first three accepted" is deterministic.
+STAR_LIMIT = 0
+STAR_EXCLUDE = []
+STAR_EXCLUDE_CLEAR = 9.0
+STAR_FORCE_KIND = None  # 'small' / 'medium' / 'large' to override the size roll
+LAST_PLACEMENTS = []    # (y, x, kind) of everything the last run placed
 STAR_SEED = 1           # change this for a different scatter at the same density and sizes
 STAR_CELL = 13.8        # grid spacing in px; smaller = more sparkles, evenly spread.  Count does
                         # not go as 1/cell^2 - cells rejected by EDGE_CLEAR and GLINT_CLEAR do not
@@ -310,7 +319,8 @@ def main():
         return rnd(a, b, salt + STAR_SEED * 1009)
 
     stars = {}
-    placed, kinds_used = 0, {}
+    placed, kinds_used, blank = 0, {}, 0
+    del LAST_PLACEMENTS[:]
     for gyi in range(int(GLOBE_H / STAR_CELL) + 1):
         for gxi in range(int(GLOBE_W / STAR_CELL) + 1):
             if sr(gxi, gyi, 7) < STAR_SKIP:
@@ -327,7 +337,10 @@ def main():
             # sparkles keep from the rim is even all the way round
             if ((sx - cx) ** 2 + (sy - cy) ** 2) ** 0.5 > radius * EDGE_CLEAR:
                 continue
-            kind = pick(STAR_KINDS, sr(gxi, gyi, 17))
+            if any(((sx - ex) ** 2 + (sy - ey) ** 2) ** 0.5 <= STAR_EXCLUDE_CLEAR
+                   for ey, ex in STAR_EXCLUDE):
+                continue
+            kind = STAR_FORCE_KIND or pick(STAR_KINDS, sr(gxi, gyi, 17))
             shape = SHAPES[kind][int(sr(gxi, gyi, 19) * len(SHAPES[kind])) % len(SHAPES[kind])]
             core = pick(STAR_CORE, sr(gxi, gyi, 23))
             drawn = 0
@@ -342,9 +355,18 @@ def main():
                 if p not in stars or lum(want) > lum(stars[p]):
                     stars[p] = want
                 drawn += 1
-            if drawn:
-                placed += 1
-                kinds_used[kind] = kinds_used.get(kind, 0) + 1
+            # Counted whether or not it drew anything.  Whether a ray survives depends on the
+            # liquid it crosses, and placement must not: the same seed has to put sparkles in the
+            # same places on every globe, or the overflow levels stop lining up with each other.
+            placed += 1
+            if not drawn:
+                blank += 1
+            kinds_used[kind] = kinds_used.get(kind, 0) + 1
+            LAST_PLACEMENTS.append((sy, sx, kind))
+            if STAR_LIMIT and placed >= STAR_LIMIT:
+                break
+        if STAR_LIMIT and placed >= STAR_LIMIT:
+            break
 
     # --- write ---
     patched, blocked = 0, 0
@@ -365,6 +387,9 @@ def main():
     print('wrote %s (%d bytes)' % (out_path, len(data)))
     print('  body %d px, repainted %d, skipped %d (would clash with the bulb)'
           % (len(body), patched, blocked))
+    if blank:
+        print('  WARNING: %d sparkle(s) drew nothing - STAR_LEVELS are not brighter than the liquid'
+              % blank)
     print('  %d sparkles over %d px (%.1f%% of the body), %s'
           % (placed, len(stars), 100.0 * len(stars) / len(body),
              ', '.join('%s x%d' % (k, n) for k, n in sorted(kinds_used.items()))))

@@ -590,6 +590,7 @@ extern uchar IconColorsSkill[256];//
 extern uchar IconColorsCharges[256];// 
 extern uchar IconColorsTrait[256];//
 extern uchar ManaOverflowColors[ManaOverflowTones][256];// X\other\ManaOvfl.trn, ManaOvf2.trn, ManaOvf3.trn
+extern bool ManaOverflowGlobeFromPanel[ManaOverflowTones];// tone has its own globe from 13cirlces.MPQ, not a .trn recolour
 extern uchar MonsterBarIconColors[6][256]; // DrawMonsterStatusBar
 extern uchar MonsterBarBorderColors[3][256]; // DrawMonsterStatusBar
 extern int GoldYouHave;//	
