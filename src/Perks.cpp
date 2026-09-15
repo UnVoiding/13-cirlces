@@ -573,7 +573,7 @@ void InitPerks()
 		else if( p < PERKS_SYNERGY_MAX_750 ){ perk.perkType = PERK_TYPE_SYNERGY; synSet.insert(p);	}
 		else                                { perk.perkType = PERK_TYPE_SYMPTOM; symSet.insert(p);	}
 
-		for( perk.valueCount = 0; perk.description[perk.valueCount] && perk.valueCount < countof(perk.description); ++perk.valueCount );
+		for( perk.valueCount = 0; perk.valueCount < countof(perk.description) && perk.description[perk.valueCount]; ++perk.valueCount );
 		int levels = 0;
 		for( int l = 0; l < countof(perk.level) && perk.level[l].charLevel; ++l, ++levels ){
 			for( auto& req: perk.level[l].perkReq ){
@@ -899,11 +899,23 @@ string ReplaceString( string subject, const string& search, const string& replac
 	return subject;
 }
 
+// "3%%,5%%,8%%": Master Caster drain rates (value[1..8]) of the overflow clusters a rank's band reaches, "%%"-escaped
+// for the snprintf the perk description goes through. "-" for no rank (no points in the perk yet).
+static string ManaOverflowDrainList( const PerkLevel* rank )
+{
+	string list;
+	if( rank ) for( int c = 0; c < ManaOverflowClusters && c * ManaOverflowClusterPercent < rank->value[0]; ++c ){
+		if( c ) list += ",";
+		list += to_string( rank->value[1 + c] ) + "%%";
+	}
+	return list.empty() ? "-" : list;
+}
+
 //----- (th2) ------------------------------------------------------------
 void DrawPerksPanel()
 {
 	int spacing = 20;
-	char buff[128];
+	char buff[1024]; // perk descriptions are formatted into this whole, every "::" line at once
 	
 	if (celLoaded == false) {
 		celLoaded = true;
@@ -1015,6 +1027,7 @@ void DrawPerksPanel()
 		int infoLines = 0;
 		for( int v = 0; v < perk.valueCount; ++v ) for( char* next = perk.description[v] - 2; next; next = strstr(next + 2, "::"), ++infoLines );
 		offset += std::max(0, 5 - infoLines / 2) * 15;
+		const PerkLevel* currentRank = maxReached ? &l : level > 0 ? &perk.level[level-1] : nullptr;
 		for( int v = 0; v < perk.valueCount; ++v ){
 			int value = l.value[v];
 			int prevValue = 0;
@@ -1025,8 +1038,12 @@ void DrawPerksPanel()
 			}
 			string desc = perk.description[v];
 			desc = ReplaceString( desc, "%i", "(\201%i\201) \204%i\204" );
+			// Master Caster: drain rate of every overflow cluster the current rank reaches ({drains}) and the next rank's ({drainsNext}).
+			// Two tokens so the description itself decides the layout, e.g. "{drains}::{drainsNext}" for one line each
+			desc = ReplaceString( desc, "{drains}", "(\201" + ManaOverflowDrainList(currentRank) + "\201)" );
+			desc = ReplaceString( desc, "{drainsNext}", "\204" + ManaOverflowDrainList(&l) + "\204" );
 
-			sprintf(buff, (char*)desc.c_str(), prevValue, value);
+			snprintf(buff, sizeof(buff), (char*)desc.c_str(), prevValue, value); // bounded: a long description gets cut short instead of smashing the stack
 
 			stringstream desc2;
 			desc2 << buff;

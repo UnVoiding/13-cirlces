@@ -1188,9 +1188,9 @@ LABEL_44:
 				case PFC_ASSASSIN:
 				case PFC_BOMBARDIER:	hitChance += 60; break;
 				}
-				hitChance += (is(GameMode, GM_EASY/*, GM_CLASSIC*/) ? 30 : 0) + PerkValue(PERK_MASTER_CASTER, CurrentPlayerIndex);
+				hitChance += (is(GameMode, GM_EASY/*, GM_CLASSIC*/) ? 30 : 0);
 				if (player.gameChanger & BIT(GC_9_NIGHT_KIN)) {	hitChance += 30;}
-				hitChance += PerkValue(PERK_MASTER_CASTER, playerIndex) + PerkValue(PERK_SANCTITY, playerIndex);
+				hitChance += PerkValue(PERK_SANCTITY, playerIndex);
 				if (HasTrait(playerIndex, TraitId::Paladin)) {	hitChance += 30;}
 				sprintf(InfoPanelBuffer, "Spell accuracy rating: %c%i", c, hitChance);
 				Tooltip_AddLine(InfoPanelBuffer, C_0_White);
@@ -2731,19 +2731,10 @@ void __fastcall Character_Passive_Life_and_Mana_Regeneration( int playerIndex ) 
 
 	bool isOverflowing = player.CurMana > player.MaxCurMana;
 	if (isOverflowing) {
-		// mana above max (from potions/mana charges/magi charges) decays back toward max, faster the higher
-		// into the Master Caster overflow band it sits - thirds of the band, whatever the band's width
-		int overflowBand = ManaOverflowCap(playerIndex) - player.MaxCurMana;
+		// mana above max (from potions/mana charges/magi charges/mana leech) decays back toward max at the Master Caster
+		// drain rate of the 25% cluster it sits in (PerksData.cpp value[1..8])
 		int intoOverflow = player.CurMana - player.MaxCurMana;
-		int manaOverflowDecayPercent;
-		if( intoOverflow * 3 >= overflowBand * 2 ){			// top third of the band
-			manaOverflowDecayPercent = 10;
-		}else if( intoOverflow * 3 >= overflowBand ){		// middle third
-			manaOverflowDecayPercent = 5;
-		}else{												// bottom third
-			manaOverflowDecayPercent = 3;
-		}
-		int manaOverflowDecayPerTick = player.MaxCurMana * manaOverflowDecayPercent / (100 * ENGINE_FPS);
+		int manaOverflowDecayPerTick = player.MaxCurMana * ManaOverflowDrainPercent(playerIndex) / (100 * ENGINE_FPS);
 		LimitToMax(manaOverflowDecayPerTick, intoOverflow); // don't decay past max in one tick
 		manaAdd -= manaOverflowDecayPerTick;
 	}

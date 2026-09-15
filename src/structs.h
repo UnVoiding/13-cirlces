@@ -2604,12 +2604,12 @@ struct PerkLevel
 	PerkReq perkReq[4];
 	SpellReq spellReq[2];
 	int s, d, m, v;
-	int value[5];
+	int value[9]; // 9 for Master Caster: overflow band + one drain rate per overflow cluster
 };
 
 struct Perk {
 	int id;
-	char* description[5];
+	char* description[9]; // one per value[] column
 	char* name;
 	PerkLevel level[150];
 	int levels;

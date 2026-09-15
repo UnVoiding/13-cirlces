@@ -510,21 +510,22 @@ Perk Perks[PERKS_COUNT] = {
 		/*29*/ { 75, IPCM_ANY_WARRIOR | IPCM_SCOUT | IPCM_SHARPSHOOTER | IPCM_SAVAGE | IPCM_BERSERKER | IPCM_EXECUTIONER | IPCM_THRAEX, {}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 300 },
 	} },
 
-	// point caps by class: mages (mage/elementalist/warlock) 10, summoners 6, bombardier 4,
+	// point caps by class: mages (mage/elementalist/warlock) 8, summoners 6, bombardier 4,
 	// assassin 2 (4 with Black Witchery - the trait gate lives in PerkAvailable), rogue 2, druid 2.
-	// value[1] is the mana overflow band: knowing the perk is what lets a character carry mana past
-	// his maximum at all, 25% of max per point (see ManaOverflowCap).
-	{ PERK_MASTER_CASTER, {"    +%i%% chance to hit::with spells and flasks", "    mana can be carried::    up to %i%% past its maximum"}, "Master Caster", {
-		/* 0*/ {  4, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 20,0 /*sdmv*/,  10,  25 },
-		/* 1*/ {  6, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 30,0 /*sdmv*/,  20,  50 },
-		/* 2*/ {  8, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 40,0 /*sdmv*/,  30,  75 },
-		/* 3*/ { 10, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 50,0 /*sdmv*/,  40, 100 },
-		/* 4*/ { 12, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 60,0 /*sdmv*/,  50, 125 },
-		/* 5*/ { 15, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 70,0 /*sdmv*/,  60, 150 },
-		/* 6*/ { 18, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 80,0 /*sdmv*/,  70, 175 }, 
-		/* 7*/ { 21, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 90,0 /*sdmv*/,  80, 200 },
-		/* 8*/ { 24, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0,100,0 /*sdmv*/,  90, 225 },
-		/* 9*/ { 27, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0,110,0 /*sdmv*/, 100, 250 },
+	// value[0] is the mana overflow band: knowing the perk is what lets a character carry mana past
+	// his maximum at all, 25% of max per point (see ManaOverflowCap). At most 200 - there are 8 clusters.
+	// value[1..8] are the drain rates, in percent of max mana per second, while mana sits in each 25%
+	// cluster above max: value[1] for 100-125%, value[2] for 125-150%, ... value[8] for 275-300%
+	// (see ManaOverflowDrainPercent). Natural mana regen is subtracted from the drain.
+	{ PERK_MASTER_CASTER, {"    You can have over %i%%::of your maximum mana::This mana overflow applies::additional mana degeneration.::Every 25%% over max consitutes::an overflow level.","Each level applies::its own degeneration::{drains}::{drainsNext}",}, "Master Caster", {
+		/* 0*/ { 20, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 50,0 /*sdmv*/,  25, 3,5,8,10,13,15,18,20 },
+		/* 1*/ { 30, IPCM_ANY_MAGE | IPCM_ROGUE | IPCM_ASSASSIN | IPCM_BOMBARDIER | IPCM_DRUID, {}/*perk*/, {}/*spell*/, 0,0, 75,0 /*sdmv*/,  50, 3,5,8,10,13,15,18,20 },
+		/* 2*/ { 40, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 100,0 /*sdmv*/,  75, 2,5,8,10,13,15,18,20 },
+		/* 3*/ { 50, IPCM_ANY_MAGE | IPCM_ASSASSIN | IPCM_BOMBARDIER, {}/*perk*/, {}/*spell*/, 0,0, 125,0 /*sdmv*/, 100, 2,4,7,10,13,15,18,20 },
+		/* 4*/ { 60, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 200,0 /*sdmv*/, 125, 1,3,6,9,12,15,18,20 },
+		/* 5*/ { 70, IPCM_ANY_MAGE, {}/*perk*/, {}/*spell*/, 0,0, 300,0 /*sdmv*/, 150, 1,3,5,8,11,13,16,18 },
+		/* 6*/ { 80, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 450,0 /*sdmv*/, 175, 1,2,4,7,10,12,14,18 },
+		/* 7*/ { 90, IPCM_MAGE | IPCM_ELEMENTALIST | IPCM_WARLOCK, {}/*perk*/, {}/*spell*/, 0,0, 600,0 /*sdmv*/, 200, 1,2,3,6,9,11,13,15 },
 	} },
 
 	{ PERK_DODGER, {"    +%i to armor class"}, "Dodger", {// upgraded to clvl 150 limit
@@ -1195,7 +1196,7 @@ Perk Perks[PERKS_COUNT] = {
 		/*19*/ { 98, IPCM_ASSASSIN, {}/*perk*/, {}/*spell*/, 0,0,0,0/*sdmv*/, 200 },
 	} },
 
-	{ PERK_MIND_OVER_MATTER, {"excessive mana shield::damage reduced::    additionally by %i%%","while mana shield is up::it also raises stun::threshold by %i"}, "Mind over Matter", {
+	{ PERK_MIND_OVER_MATTER, {"excessive mana shield::damage reduced::    additionally by %i%%","while mana shield is up::it also raises stun::    threshold by %i"}, "Mind over Matter", {
 		/* 0*/ { 10, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,1 }/*spell*/, 0,0, 70,0 /*sdmv*/, {15,  5} },
 		/* 1*/ { 13, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,2 }/*spell*/, 0,0, 85,0 /*sdmv*/, {25,  10} },
 		/* 2*/ { 17, IPCM_ANY_MAGE, {}/*perk*/, {PS_11_MANA_SHIELD,3 }/*spell*/, 0,0,105,0 /*sdmv*/, {35,  15} },

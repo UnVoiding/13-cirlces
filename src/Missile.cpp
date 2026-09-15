@@ -883,7 +883,7 @@ int Calc_PvM_Ranged_Hit_Chance( int playerIndex, int monsterIndex, int distance,
 			case PFC_BOMBARDIER:	hitChance += 60; break;
 			}
 			if (player.gameChanger & BIT(GC_9_NIGHT_KIN)) { hitChance += 30; 	}
-			hitChance += PerkValue(PERK_MASTER_CASTER, playerIndex) + PerkValue(PERK_SANCTITY, playerIndex);			
+			hitChance += PerkValue(PERK_SANCTITY, playerIndex);
 			if (HasTrait(playerIndex, TraitId::Paladin)) {	hitChance += 30;	}
         }
     }
@@ -4115,7 +4115,6 @@ bool __fastcall PvP_Ranged( int attackerPlayerIndex, int targetPlayerIndex, int 
 			case PC_2_MAGE:			hitChance += 20;		break;
 			case PC_4_ROGUE:		hitChance += 40;		break;
 		}
-		hitChance += PerkValue(PERK_MASTER_CASTER, attackerPlayerIndex);
 	}else{
 		int basic_AC_divider = 5;
 		if (HasTrait(targetPlayerIndex, TraitId::SmallFrame)) {

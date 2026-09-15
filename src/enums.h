@@ -8908,6 +8908,8 @@ enum MONSTER_AVIALABILITY
 // also covering everything beyond it (X\other\ManaOvfl.trn, ManaOvf2.trn, ManaOvf3.trn in
 // 13cirlces.MPQ - see tools\make_mana_overflow_trn.py).
 enum { ManaOverflowTones = 3 };
+// Master Caster's overflow band is split into 25% clusters of max mana, each with its own drain rate (PerksData.cpp value[1..8])
+enum { ManaOverflowClusterPercent = 25, ManaOverflowClusters = 8 };
 
 // Palette index the automap marks mana potions with - 128 is (159,159,255), the pale top of the
 // palette's blue ramp. This is what the automap actually draws with; the Alt+2 cheat still writes

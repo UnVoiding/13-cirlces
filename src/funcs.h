@@ -2317,14 +2317,24 @@ int GetTraitSpellIcon( TraitId id );
 template<typename... T> __forceinline bool HasTrait(uint playerIndex, T&&... val){ return playerIndex > 3 ? false : has(Players[playerIndex].traits, val...); }
 template<typename... T> __forceinline bool CurTrait(T&&... val){ return has(Players[CurrentPlayerIndex].traits, val...); }
 
-// Mana overflow is Master Caster's second effect: how far past his maximum a character may carry mana,
+// Mana overflow is Master Caster's effect: how far past his maximum a character may carry mana,
 // in percent of max (25% per point). Without the perk there is no overflow band at all, so every class
 // that can learn the perk can overflow and no other class can.
-__forceinline int ManaOverflowPercent(int playerIndex){ return PerkValue(PERK_MASTER_CASTER, playerIndex, 1); }
-// the highest CurMana a character may hold. Mana is pushed into the overflow band by potions/mana charges/magi charges, never by natural regen
+__forceinline int ManaOverflowPercent(int playerIndex){ return PerkValue(PERK_MASTER_CASTER, playerIndex, 0); }
+// Master Caster value[1..8]: percent of max mana drained per second while CurMana sits in each 25% cluster above max
+// (value[1] for 100-125%, value[2] for 125-150%, ...). Mana past the last cluster drains at the last cluster's rate.
+__forceinline int ManaOverflowDrainPercent(int playerIndex){
+	const Player& player = Players[playerIndex];
+	if( player.MaxCurMana <= 0 || player.CurMana <= player.MaxCurMana ) return 0;
+	int cluster = int( (i64(player.CurMana - player.MaxCurMana) * 100 - 1) / (i64(player.MaxCurMana) * ManaOverflowClusterPercent) );
+	if( cluster >= ManaOverflowClusters ) cluster = ManaOverflowClusters - 1;
+	return PerkValue(PERK_MASTER_CASTER, playerIndex, 1 + cluster);
+}
+// the highest CurMana a character may hold. Mana is pushed into the overflow band by potions/mana charges/magi charges/mana leech, never by natural regen
 __forceinline int ManaOverflowCap(int playerIndex){ const Player& player = Players[playerIndex]; return player.MaxCurMana + player.MaxCurMana * ManaOverflowPercent(playerIndex) / 100; }
-// for effects that must NOT create new mana overflow themselves (natural regen, mana leech): preserves any existing overflow (from potions/mana charges/magi charges) rather than wiping it down to max
-__forceinline int ManaCapNoNewOverflow(int preEffectCurMana, int playerIndex){ const Player& player = Players[playerIndex]; return preEffectCurMana > player.MaxCurMana ? preEffectCurMana : player.MaxCurMana; }
+// cap for mana leech: a Master Caster can leech into the overflow band, anyone else only up to max. Never wipes overflow the
+// character already holds, even above the cap, so leech can't cost mana (the regen decay is what brings it back down)
+__forceinline int ManaLeechCap(int preEffectCurMana, int playerIndex){ int cap = ManaOverflowCap(playerIndex); return preEffectCurMana > cap ? preEffectCurMana : cap; }
 // the mana globe area of the main panel, which the 88x88 bulb graphics (and the overflow globe built from them) line up with
 enum { ManaGlobeLeft = 464, ManaGlobeWidth = 88, ManaGlobeHeight = 88, ManaGlobeImageSize = ManaGlobeWidth * ManaGlobeHeight };
 // The overflow fillings cover one column more than the globe the engine fills. The panel art's
