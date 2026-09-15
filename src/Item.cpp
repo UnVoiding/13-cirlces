@@ -4698,7 +4698,7 @@ LABEL_73:
 		- dark_pact_trait_penalty
 		- insensitivity_trait_penalty;
 	player.lifeRegenPercent = lifeRegenPercent - PerkValue(SYMP_FIBROSIS, playerIndex);
-	player.manaRegenPercent = manaRegenPercent - PerkValue(SYMP_FIBROSIS, playerIndex);
+	player.manaRegenPercent = manaRegenPercent - PerkValue(SYMP_FIBROSIS, playerIndex) + PerkValue(PERK_FOCUS, playerIndex, 1);
 	player.xpGainMin = xpGainMin;
 	player.xpGainMax = xpGainMax;
 	player.xpGainPercent = xpGainPercent;
