@@ -1020,7 +1020,7 @@ void __fastcall FixMonsterPosition( int monsterIndex, int direction	);//	Monster
 void __fastcall SetMonsterAnimation( int monsterIndex, MonsterAnim* animPtr, int direction	);//	Monster		
 void __fastcall CheckMonsterUnderArch( int monsterIndex	);//	Monster		
 void __fastcall ClearMonsterOnMap( int monsterIndex	);//	Monster		
-void __fastcall KnockbackMonster( int monsterIndex, int orientation, int range	);//	Monster		
+void __fastcall KnockbackMonster( int monsterIndex, int orientation, int range, bool ignoreTypeResistance = false	);//	Monster
 void __fastcall DamageMonsterByPlayer( int monsterIndex, int playerIndex, int damage, int dot = 0 	);//	Monster		
 std::tuple<int, int> GetMonsterStunThresholdRange(const Monster& monster);//	MonsterStunThreshold		
 std::tuple<int, int> GetPlayerStunThreshold(int playerIndex);// Player stun threshold calculation

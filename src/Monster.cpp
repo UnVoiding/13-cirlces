@@ -3623,7 +3623,7 @@ void __fastcall ClearMonsterOnMap(int monsterIndex)
 }
 
 //----- (0043CDC1) --------------------------------------------------------
-void __fastcall KnockbackMonster(int monsterIndex, int orientation, int range ) //#monster knockback resist, #KB rez
+void __fastcall KnockbackMonster(int monsterIndex, int orientation, int range, bool ignoreTypeResistance /*= false*/ ) //#monster knockback resist, #KB rez
 {
 	int revers = ((uchar) orientation - 4) & 7;
 	Monster& monster = Monsters[monsterIndex];
@@ -3634,7 +3634,7 @@ void __fastcall KnockbackMonster(int monsterIndex, int orientation, int range ) 
 	auto _1  = [&](int range){ return RNG(range) == 1; }; // more range = less knockback
 	auto _n2 = [&](int range){ return RNG(range) != 2; }; // more range = more knockback
 	bool kb = true; // monster can be knockbacked
-	if (GameMode == GM_CLASSIC) goto SKIPPE; // skip all kb rez in Classic
+	if (GameMode == GM_CLASSIC || ignoreTypeResistance) goto SKIPPE; // skip all kb rez in Classic, or when the caller (Telekinesis) ignores per-type resistance
 	if( MaxCountOfPlayersInGame == 1 ){ // single
 		switch( bm ){
 		case BM_0_BURNED_CORPSE or BM_2_ROTTING_CARCASS or BM_6_GRAVE_DIGGER or BM_15_TOMB_SLAVE or BM_57_HELL_CLAN or BM_113_ASH_GOLEM 

@@ -2311,13 +2311,37 @@ uint On_TSPELLPID( const TCmdParam3* packet, int playerIndex )
 }
 
 //----- (004494B1) --------------------------------------------------------
-uint On_KNOCKBACK( const TCmdParam2* packet, int playerIndex )
+uint On_KNOCKBACK( const TCmdParam2* packet, int playerIndex ) // only sent by Telekinesis (Item.cpp: TelekinesApply)
 {
 	Player& player = Players[playerIndex];
 	if( gbBufferMsgs != BUFFER_ON && Dungeon == player.dungeon ){
 	    int monsterIndex = packet->firstArg;
 		int range = packet->secondArg;
-		KnockbackMonster(monsterIndex, OrientationToTarget( Monsters[monsterIndex].Row, Monsters[monsterIndex].Col, Players[playerIndex].Row, Players[playerIndex].Col ), range );
+		Monster& monster = Monsters[monsterIndex];
+
+		// Telekinesis ignores a monster's innate knockback resistance, except for these bosses, which keep the normal resistance rules.
+		static const UNIQUE_MONSTER TelekinesKnockbackExceptions[] = {
+			UM_4_ArchBishop_Lazarus, UM_11_The_Defiler, UM_12_Uber_Diablo, UM_758_Lord_of_Terror,
+			UM_154_Diablo, UM_763_Beelzebub, UM_1_Skeleton_King, UM_764_Lord_Nysallor,
+			UM_765_Duke_of_Abyss, UM_582_Izual, UM_587_Hephasto_the_Armorer, UM_773_The_Dark_Lord
+		};
+		bool ignoreTypeResistance = !is( monster.newBossId - 1, TelekinesKnockbackExceptions );
+
+		bool doKnockback = true;
+		if( ignoreTypeResistance ){
+			// 100% within 3 tiles; beyond that, chance = 100*(0.9+SLVL/15)^(distance-3)
+			int distance = max( abs(player.Row - monster.Row), abs(player.Col - monster.Col) );
+			if( distance > 3 ){
+				int spellLevel = PlayerSpellLevel(playerIndex, PS_33_TELEKINES);
+				int N = distance - 3;
+				int chance = (int)(100.0 * pow(0.9 + 0.01 * spellLevel / 15.0, N));
+				LimitToRange(chance, 0, 100);
+				doKnockback = RNG(100) < chance;
+			}
+		}
+		if( doKnockback ){
+			KnockbackMonster(monsterIndex, OrientationToTarget( monster.Row, monster.Col, player.Row, player.Col ), range, ignoreTypeResistance );
+		}
 		DamageMonsterByPlayer(monsterIndex, playerIndex, 0);
 	}
 	return sizeof( *packet );

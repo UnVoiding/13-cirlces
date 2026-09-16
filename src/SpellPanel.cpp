@@ -760,6 +760,8 @@ void DrawSpellBook()
 			drawLine(InfoPanelBuffer);
 			sprintf(InfoPanelBuffer, "breaks Stone Curse");
 			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "can knockback enemies");
+			drawLine(InfoPanelBuffer);
 		}
 		else if (spellIndex == PS_16_REFLECT) {
 			sprintf(InfoPanelBuffer, "gives invulnerability");
