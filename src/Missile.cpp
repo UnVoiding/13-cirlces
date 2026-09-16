@@ -310,8 +310,10 @@ int __fastcall GetDamageOfPlayerSpell(int playerIndex, int spellIndex, int spell
 			maxDamage = minDamage + player.CurMagic / 4;
 		}
 		else {
-			minDamage = 1 + spellLevel;
-			maxDamage = 7 * player.CurMagic / 5 + minDamage;
+			// spell book only: each bolt rolls RNG(3 * magic / 2) + 1 in CastChargedBolt,
+			// and nearly every monster resists lightning, which divides the hit by 4
+			minDamage = 1;
+			maxDamage = 3 * player.CurMagic / 2 / 4;
 		}
 		break;
 	case PS_31_HOLY_BOLT:
@@ -6476,7 +6478,7 @@ void __fastcall CastTelekinesis( int missileIndex, int casterRow, int casterCol,
 	missile.IsDeleted = true;
 	if( casterIndex == CurrentPlayerIndex && Cur.GraphicsID == CM_1_NORMAL_HAND ){
 		MinusManaOrChargeOrRelicByPriceOfSSpell(casterIndex, PS_33_TELEKINES);
-		SetCursorGraphics(CM_7_TELEKINESIS);
+		TelekinesApply(); // apply instantly at whatever is under the cursor instead of waiting for a follow-up click
 	}
 }
 

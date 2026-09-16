@@ -758,6 +758,8 @@ void DrawSpellBook()
 			drawLine(InfoPanelBuffer);
 			sprintf(InfoPanelBuffer, "from a distance");
 			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "breaks Stone Curse");
+			drawLine(InfoPanelBuffer);
 		}
 		else if (spellIndex == PS_16_REFLECT) {
 			sprintf(InfoPanelBuffer, "gives invulnerability");
@@ -911,6 +913,12 @@ void DrawSpellBook()
 			sprintf(InfoPanelBuffer, "creates multiple bolts");
 			drawLine(InfoPanelBuffer);
 			sprintf(InfoPanelBuffer, "of electrical energy");
+			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, " ");
+			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "Releases 3 bolts and 1");
+			drawLine(InfoPanelBuffer);
+			sprintf(InfoPanelBuffer, "for every 4 spell levels");
 			drawLine(InfoPanelBuffer);
 			sprintf(InfoPanelBuffer, " ");
 			drawLine(InfoPanelBuffer);
@@ -1215,7 +1223,7 @@ void DrawSpellBook()
 			sprintf(InfoPanelBuffer, "Damage per second: %i", minDamage);
 			drawLine(InfoPanelBuffer, 4);
 		}else if( minDamage != -1 && !( minDamage == 0 && maxDamage == 0 ) && !is(spellIndex, PS_21_GOLEM, PS_52_LESSER_SUMMON, PS_53_COMMON_SUMMON, PS_54_GREATER_SUMMON)){
-            sprintf( InfoPanelBuffer, "Damage: %i-%i", minDamage, maxDamage );
+            sprintf( InfoPanelBuffer, spellIndex == PS_30_CHARGED_BOLT ? "Each bolt damage: %i-%i" : "Damage: %i-%i", minDamage, maxDamage );
 			int le_color;
 			//ELEMENTAL_TYPE damageType;
 			switch (spellIndex) {
