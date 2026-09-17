@@ -14,6 +14,10 @@ int __fastcall CalculateManaRequiredToCastSpell(int casterIndex, int spellIndex)
 	if( spellIndex == PS_1_FIREBOLT ){
 		spellDecrement /= 2;
 	}
+	// Telekinesis: -1 mana every 5th spell level, instead of every level
+	if( spellIndex == PS_33_TELEKINES ){
+		spellDecrement = (spellLevelToDecrement + 1) / 5;
+	}
 	// cast not used
 	if( spellIndex == PS_32_BONE_SPIRIT_REAL_RESSURECT && spellLevelToDecrement > 0 ){
 		spellDecrement = spellLevelToDecrement * ((uint)spell.InitialManaToCast >> 3);

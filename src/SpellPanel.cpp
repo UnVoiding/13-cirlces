@@ -1299,8 +1299,14 @@ void DrawSpellBook()
 			drawLine("range: 3 tiles");
 			drawLine("");
 		}
-		else if (is(spellIndex, PS_23_TELEPORT, PS_33_TELEKINES)) {
+		else if (spellIndex == PS_23_TELEPORT) {
 			drawLine("range: 10 tiles");
+			drawLine("");
+		}
+		else if (spellIndex == PS_33_TELEKINES) {
+			int telekinesisRange = 8 + PlayerSpellLevel(CurrentPlayerIndex, PS_33_TELEKINES) / 10;
+			sprintf(InfoPanelBuffer, "range: %i tiles", telekinesisRange);
+			drawLine(InfoPanelBuffer);
 			drawLine("");
 		}
 

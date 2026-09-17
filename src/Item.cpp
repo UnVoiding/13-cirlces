@@ -2699,9 +2699,11 @@ bool TelekinesRecentlyAppliedToMonster = false;
 void TelekinesApply()
 {
 	Player& player = Players[CurrentPlayerIndex];
-	// если расстояние больше 10 клеток, телекинез тратится в пустую
+	// стартовая дальность 8 клеток, +1 клетка за каждый 10й уровень заклинания
+	// если расстояние больше дальности, телекинез тратится в пустую
 	// надо сделать отображение превышения расстояния (красный курсор) и возможно сделать несрабатывание
-	if( abs( player.Row - Cur.Row ) <= 10 && abs( player.Col - Cur.Col ) <= 10 ){
+	int range = 8 + PlayerSpellLevel(CurrentPlayerIndex, PS_33_TELEKINES) / 10;
+	if( abs( player.Row - Cur.Row ) <= range && abs( player.Col - Cur.Col ) <= range ){
 		if( Cur.ObjectIndex != -1 ){
             NetSendCmdParam1( 1, CMD_27_OPOBJT, Cur.ObjectIndex );
 		}else if( Cur.ItemID != -1 ){
